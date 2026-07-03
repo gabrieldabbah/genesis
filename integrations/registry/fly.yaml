@@ -1,0 +1,11 @@
+id: fly
+category: hosting
+domains: [api.fly.io, api.machines.dev, registry.fly.io]
+env_keys: [FLY_API_TOKEN]
+cli: [flyctl, fly]
+sandbox_unfriendly_cli: true
+worker: deploy
+security: [token-scope-least-privilege, secrets-via-fly-secrets-not-env-files, internal-network-isolation]
+docs_source: https://fly.io/docs
+verify: "a deploy to a staging app returns a healthy URL"
+notes: "use `fly secrets` for runtime secrets; production deploy is a human gate"

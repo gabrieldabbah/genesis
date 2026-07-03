@@ -1,0 +1,28 @@
+{
+  "project": "my-app",
+  "updatedAt": "2026-06-22T18:30:00Z",
+  "paused": false,
+  "phase": { "current": 4, "label": "Choosing the stack" },
+  "phases": [
+    { "n": 0, "label": "Capture the problem", "status": "done" },
+    { "n": 1, "label": "Foundation", "status": "done" },
+    { "n": 2, "label": "Research & understand", "status": "done" },
+    { "n": 3, "label": "Architecture & docs", "status": "done" },
+    { "n": 4, "label": "Choose the stack", "status": "active" },
+    { "n": 5, "label": "Plan", "status": "pending" },
+    { "n": 6, "label": "Build autonomously", "status": "pending" }
+  ],
+  "activity": "Proposing stack: TypeScript + Hono + Vitest (rationale in docs/DECISIONS.md)",
+  "todo": [
+    { "id": "item-1", "title": "Project skeleton + CI", "build": "done", "test": "done" },
+    { "id": "item-2", "title": "Auth middleware", "build": "doing", "test": "todo" },
+    { "id": "item-3", "title": "Checkout flow", "build": "todo", "test": "todo" }
+  ],
+  "integrations": [
+    { "id": "stripe", "label": "Stripe", "category": "payments", "status": "needs-key" },
+    { "id": "supabase", "label": "Supabase", "category": "backend-db", "status": "connected" }
+  ],
+  "usage": { "pct": 62, "threshold": 85, "windowResetsAt": "2026-06-22T21:00:00Z", "known": true },
+  "acceptance": { "criteriaMet": false, "open": ["item-2 tests red"], "iteration": 3, "maxIterations": 50 },
+  "needsHuman": null
+}

@@ -1,0 +1,371 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .gitignore — copied verbatim by genesis in Phase 1, then trimmed to the stack.
+#
+# KEEP ALWAYS (every genesis repo, stack-agnostic):
+#   · Operating systems   · Editors / IDEs   · Secrets & env   · Logs
+#   · Caches & coverage    · Temp & archives   · Scratch space
+# APPEND PER STACK (Phase 4, only the chosen ones): Node · Python · Rust · Go ·
+#   .NET · Java/Gradle · Infra (Terraform).
+#
+# Two rules that must never be violated:
+#   1. NEVER ignore documented examples — `.env.example`, `.scratch/README.md`.
+#   2. NEVER commit a secret. If a pattern below is too broad and hides a file
+#      you need, narrow it — do not loosen the secret rules.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Operating systems  (KEEP ALWAYS)
+# ═════════════════════════════════════════════════════════════════════════════
+
+# macOS
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.DocumentRevisions-V100
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+Icon
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.stackdump
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Editors & IDEs  (KEEP ALWAYS)
+# ═════════════════════════════════════════════════════════════════════════════
+
+# VS Code — ignore the folder but keep shareable, non-secret workspace settings.
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# JetBrains (IntelliJ, PyCharm, WebStorm, GoLand, Rider, …)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim / Neovim
+*.swp
+*.swo
+*.swn
+*~
+Session.vim
+.netrwhist
+tags
+
+# Emacs
+*~
+\#*\#
+.\#*
+.emacs.desktop
+.emacs.desktop.lock
+
+# Other editors
+.zed/
+nbproject/
+*.bak
+*.tmp
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Secrets & environment  (KEEP ALWAYS — never loosen)
+#   Documented variable NAMES live in `.env.example` (committed); VALUES never do.
+# ═════════════════════════════════════════════════════════════════════════════
+
+# Dotenv files — ignore every variant…
+.env
+.env.*
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.staging
+.env.production
+.env.production.local
+*.env
+
+# …but ALWAYS keep the documented templates (names only, no values).
+!.env.example
+!.env.sample
+!.env.template
+!.env.*.example
+
+# Credentials, keys & certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.cer
+*.crt
+*.der
+*.keystore
+*.jks
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+*.gpg
+*.asc
+
+# Cloud / service credentials (broad, intentional)
+credentials
+credentials.json
+secrets.json
+secrets.yaml
+secrets.yml
+.netrc
+.npmrc
+.pypirc
+*.secret
+.htpasswd
+service-account*.json
+gha-creds-*.json
+.aws/
+.gcloud/
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Logs  (KEEP ALWAYS)
+# ═════════════════════════════════════════════════════════════════════════════
+*.log
+logs/
+log/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+debug.log
+crash.log
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Caches & coverage  (KEEP ALWAYS)
+# ═════════════════════════════════════════════════════════════════════════════
+.cache/
+.tmp/
+.temp/
+tmp/
+temp/
+
+# Coverage reports (any stack)
+coverage/
+.coverage
+.coverage.*
+*.lcov
+.nyc_output/
+htmlcov/
+lcov-report/
+junit.xml
+test-results/
+*.cover
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Temp files & archives  (KEEP ALWAYS)
+# ═════════════════════════════════════════════════════════════════════════════
+*.orig
+*.rej
+*.pid
+*.seed
+*.pid.lock
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.dmg
+*.iso
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Scratch space  (KEEP ALWAYS — ephemeral work area defined in AGENTS.md §6)
+#   Ignore everything inside `.scratch/` EXCEPT its README so the folder, its
+#   purpose, and the documentation gate survive in git.
+# ═════════════════════════════════════════════════════════════════════════════
+.scratch/*
+!.scratch/README.md
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# ── STACK SECTIONS ──  (APPEND ONLY THE CHOSEN STACK'S BLOCK IN PHASE 4) ──
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+# ───────────────────────────────────────────────────────────────── Node.js ──
+node_modules/
+.pnp
+.pnp.*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+jspm_packages/
+bower_components/
+
+# Build output & framework dirs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.astro/
+.docusaurus/
+.turbo/
+.parcel-cache/
+.vercel/
+.netlify/
+.output/
+.vite/
+storybook-static/
+
+# Tooling caches
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.npm/
+
+# Package manager debug (logs covered above; tarballs here)
+*.tgz
+
+
+# ────────────────────────────────────────────────────────────────── Python ──
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Packaging & build
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+wheels/
+sdist/
+develop-eggs/
+pip-wheel-metadata/
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.dmypy.json
+dmypy.json
+.tox/
+.nox/
+.ipynb_checkpoints/
+.pdm-python
+__pypackages__/
+
+
+# ──────────────────────────────────────────────────────────────────── Rust ──
+target/
+**/*.rs.bk
+*.pdb
+Cargo.lock        # keep for binaries / apps; un-ignore (delete this line) for a library crate
+
+
+# ────────────────────────────────────────────────────────────────────── Go ──
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+go.work.sum
+
+
+# ──────────────────────────────────────────────────────────────────── .NET ──
+bin/
+obj/
+*.user
+*.suo
+.vs/
+project.lock.json
+artifacts/
+*.nupkg
+TestResults/
+
+
+# ─────────────────────────────────────────────────────────── Java / Gradle ──
+*.class
+build/
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+target/                # Maven
+*.jar                  # narrow this if you commit a wrapper or vendored jar
+*.war
+*.ear
+hs_err_pid*
+.mvn/timing.properties
+
+
+# ──────────────────────────────────────────────── Infrastructure (Terraform) ──
+.terraform/
+.terraform.lock.hcl    # keep for reproducible providers; delete this line to commit the lock
+*.tfstate
+*.tfstate.*
+*.tfvars               # may hold secrets — keep ignored; document names in *.tfvars.example
+!*.tfvars.example
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc

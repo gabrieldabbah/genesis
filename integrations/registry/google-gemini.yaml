@@ -1,0 +1,12 @@
+id: google-gemini
+category: ai-media
+domains: [generativelanguage.googleapis.com, aiplatform.googleapis.com]
+env_keys: [GOOGLE_API_KEY]
+cli: []
+sandbox_unfriendly_cli: false
+capabilities: [image, video, text]
+fallbacks: [openai]               # fail over to these (resilience — see templates/docs/RESILIENCE.md)
+security: [api-key-server-only, spend-limit-set, no-pii-to-provider-without-consent, content-safety-settings]
+docs_source: https://ai.google.dev/docs
+verify: "a small image/video generation call returns successfully and is logged with cost"
+notes: "consumed by the media-gen skill (Imagen/Veo for image/video); set quota/spend limits"

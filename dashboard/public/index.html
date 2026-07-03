@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b1020" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>Genesis</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">⚡ Genesis<span id="project"></span></div>
+    <div class="right">
+      <div id="usage" class="usage" title="usage this window"></div>
+      <button id="pauseBtn" class="btn">Pause</button>
+      <span id="dot" class="dot" title="connection"></span>
+    </div>
+  </header>
+
+  <main>
+    <section id="needsHuman" class="card alert" hidden>
+      <h2>Needs you</h2>
+      <p id="needsHumanText"></p>
+      <div class="row"><input id="answer" placeholder="Your answer…" /><button id="answerBtn" class="btn primary">Send</button></div>
+    </section>
+
+    <section class="card">
+      <h2>Stage</h2>
+      <ol id="phases" class="timeline"></ol>
+      <p id="activity" class="activity"></p>
+    </section>
+
+    <section class="card">
+      <h2>TODO <small id="roadmapCount"></small></h2>
+      <ul id="roadmap" class="roadmap"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Integrations</h2>
+      <div id="integrations" class="grid"></div>
+      <p class="hint">Click <b>Connect</b>, paste the key — it's written to <code>.env</code> on your machine
+        only, and the AI wires the code.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

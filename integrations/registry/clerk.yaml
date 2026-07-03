@@ -1,0 +1,10 @@
+id: clerk
+category: auth
+domains: ["*.clerk.accounts.dev", api.clerk.com, clerk.com]
+env_keys: [CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY]
+cli: []
+sandbox_unfriendly_cli: false
+security: [secret-key-server-only, session-validation-on-every-protected-route, no-authz-bypass, jwt-verification]
+docs_source: https://clerk.com/docs
+verify: "a protected route rejects anonymous access and accepts a valid session"
+notes: "publishable key is client-safe; secret key is server-only"

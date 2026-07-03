@@ -1,0 +1,10 @@
+id: cloudflare-r2
+category: storage
+domains: ["*.r2.cloudflarestorage.com", api.cloudflare.com]
+env_keys: [R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET]
+cli: [wrangler]
+sandbox_unfriendly_cli: true
+security: [least-privilege-bucket-scope, no-public-bucket-by-default, presigned-urls-for-uploads, no-keys-in-client]
+docs_source: https://developers.cloudflare.com/r2
+verify: "an object uploads via a presigned URL and is not publicly listable"
+notes: "S3-compatible API; scope tokens to the single bucket"

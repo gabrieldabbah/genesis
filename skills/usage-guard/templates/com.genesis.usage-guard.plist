@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Genesis usage-guard resumer (macOS launchd).
+  Fill the {{...}} placeholders, then install:
+
+    cp com.genesis.usage-guard.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.genesis.usage-guard.plist
+
+  Uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.genesis.usage-guard.plist
+
+  It runs resume-daemon.sh every 10 minutes; the script only acts if a genesis run is paused
+  (.scratch/resume.json present) AND usage has recovered. Idle ticks are near-zero cost.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.genesis.usage-guard</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>{{ABSOLUTE_PATH_TO}}/skills/usage-guard/scripts/resume-daemon.sh</string>
+  </array>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>GENESIS_PROJECT_DIR</key>
+    <string>{{ABSOLUTE_PATH_TO_YOUR_PROJECT}}</string>
+    <key>GENESIS_USAGE_THRESHOLD</key>
+    <string>85</string>
+    <!-- 0 = self-calibrate from ccusage history (recommended); or set an explicit tokens-per-5h-window number -->
+    <key>GENESIS_WINDOW_TOKEN_BUDGET</key>
+    <string>0</string>
+    <key>PATH</key>
+    <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <key>StartInterval</key>
+  <integer>600</integer>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>{{ABSOLUTE_PATH_TO_YOUR_PROJECT}}/.scratch/usage-guard.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>{{ABSOLUTE_PATH_TO_YOUR_PROJECT}}/.scratch/usage-guard.err.log</string>
+</dict>
+</plist>

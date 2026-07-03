@@ -1,0 +1,11 @@
+id: supabase
+category: backend-db
+domains: ["*.supabase.co", "*.supabase.com", api.supabase.com]
+env_keys: [SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_DB_PASSWORD]
+cli: [supabase]
+sandbox_unfriendly_cli: true
+worker: data-migration
+security: [row-level-security-enabled, service-role-key-server-only, rls-policy-tests, least-privilege-roles]
+docs_source: https://supabase.com/docs
+verify: "RLS policies pass their tests and migrations apply+rollback on a fresh DB"
+notes: "service-role key must never reach the client; anon key is the only client key"

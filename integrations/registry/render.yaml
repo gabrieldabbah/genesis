@@ -1,0 +1,11 @@
+id: render
+category: hosting
+domains: [api.render.com]
+env_keys: [RENDER_API_KEY]
+cli: [render]
+sandbox_unfriendly_cli: true
+worker: deploy
+security: [token-scope-least-privilege, no-secrets-in-build-logs, env-group-isolation]
+docs_source: https://render.com/docs
+verify: "a service deploy reaches live status with a healthy health-check"
+notes: "production deploys are a human gate; prefer blueprint (render.yaml) for reproducibility"

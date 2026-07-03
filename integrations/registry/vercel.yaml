@@ -1,0 +1,11 @@
+id: vercel
+category: hosting
+domains: [api.vercel.com, vercel.com]
+env_keys: [VERCEL_TOKEN]
+cli: [vercel]
+sandbox_unfriendly_cli: true
+worker: deploy
+security: [token-scope-least-privilege, no-secrets-in-build-logs, preview-env-isolation]
+docs_source: https://vercel.com/docs
+verify: "a preview deploy returns a healthy URL"
+notes: "production deploys + domain changes are a human gate"

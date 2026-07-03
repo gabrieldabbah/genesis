@@ -1,0 +1,11 @@
+id: stripe
+category: payments
+domains: [api.stripe.com, checkout.stripe.com, js.stripe.com]
+env_keys: [STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET]
+cli: [stripe]
+sandbox_unfriendly_cli: true
+worker: payments
+security: [pci-surface, webhook-signature-verification, no-card-data-at-rest, idempotency-keys]
+docs_source: https://docs.stripe.com
+verify: "a test-mode charge succeeds and a signature-verified webhook is handled"
+notes: "use test-mode keys in dev; live keys + go-live are a human gate"
