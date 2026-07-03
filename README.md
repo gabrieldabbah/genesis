@@ -31,15 +31,24 @@ from an empty folder and is not a tool for changing existing codebases.
 
 ## Requirements
 
+**Required:**
+
 - **[Claude Code](https://claude.com/claude-code)** (terminal, VS Code, or desktop app) with a paid Claude plan.
-- **Recommended: a Claude Max subscription.** A full autonomous build is long and usage-hungry; Max gives it
-  room to finish in fewer pauses. Also recommended: include the keyword **`ultracode`** in your prompt when you
-  kick off a build — it opts Claude Code into multi-agent orchestration, which makes the build loop noticeably
-  more thorough. Genesis works fine without either.
-- **[Node.js](https://nodejs.org) 18+** — only for the optional dashboard and usage-based auto-resume.
-- **macOS** — only for the extra OS-level sandbox layer and the optional overnight auto-resumer. On Windows and
-  Linux, genesis still enforces the write-scope and secret-read rules through Claude Code permission rules;
-  everything else is cross-platform.
+- **[Node.js](https://nodejs.org) 18+** — only if you use the optional dashboard or usage-based auto-resume.
+
+**Recommended:**
+
+- **Claude Max** — a full autonomous build is long and usage-hungry; Max gives it room to finish in fewer
+  pauses. Works on Pro, just with more waiting.
+- **Auto mode** — let Claude Code run without approving every action; that's what makes an unattended build
+  actually unattended. Genesis pairs it with the sandbox it sets up, but you enable it at your own risk — we
+  are not responsible for issues caused by running with reduced permission prompts.
+- **`ultracode`** — strongly recommended, not required. Include the keyword in the prompt that kicks off a
+  build: it opts Claude Code into multi-agent orchestration, and the build loop gets noticeably more thorough.
+
+**Platforms:** macOS gets the extra OS-level sandbox layer and the optional overnight auto-resumer. On Windows
+and Linux, genesis still enforces the write-scope and secret-read rules through Claude Code permission rules;
+everything else is cross-platform.
 
 ## Install
 
