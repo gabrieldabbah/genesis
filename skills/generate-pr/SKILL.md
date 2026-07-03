@@ -1,6 +1,6 @@
 ---
 name: generate-pr
-description: 'Generate a complete pull request from the branch diff and open or update it. Use when the user asks to create/open a PR, fill the PR template, or mentions "/generate-pr". Computes the diff between the current branch and a target branch (default `dev`), fills EVERY section of .github/pull_request_template.md grounded in that diff, and runs `gh pr create`/`gh pr edit`. Honors DRY_RUN=1 to emit out/pr-body.md instead of touching GitHub.'
+description: 'Generate a complete pull request from the branch diff and open or update it. Use when the user asks to create/open a PR, fill the PR template, or mentions "/generate-pr". Two modes by where you stand: from a feature branch it targets `dev` (default); from `dev` it targets `main` (promotion PR). Fills EVERY section of .github/pull_request_template.md grounded in the diff, and runs `gh pr create`/`gh pr edit`. Honors DRY_RUN=1 to emit out/pr-body.md instead of touching GitHub.'
 license: MIT
 allowed-tools: Bash, Read, Write
 ---
@@ -27,7 +27,15 @@ A15). When a fact has no evidence, write `n/a`.
 
 ## Arguments & modes
 
-- `$1` (optional) — target branch. Default **`dev`** (work lands on `dev`; `main` holds proven-good only).
+Two modes, decided by the branch you are standing on:
+
+- **Work PR** (from a feature branch) — target defaults to **`dev`** (work lands on `dev`).
+- **Promotion PR** (from `dev`) — target defaults to **`main`** (proven-good work goes to prod). This is the
+  release path: `main` only moves via a PR from `dev`.
+
+Options:
+
+- `$1` (optional) — explicit target branch, overriding the default for the mode.
 - `DRY_RUN=1` (env) — emit the body to `out/pr-body.md` and print the `gh` command instead of touching
   GitHub. Also the automatic fallback when `gh` is missing/unauthenticated. This is how you **test** the
   skill without spamming real PRs.
@@ -38,10 +46,18 @@ A15). When a fact has no evidence, write `n/a`.
 
 ```bash
 CURRENT=$(git rev-parse --abbrev-ref HEAD)
-TARGET="${1:-dev}"
 
-# Refuse to PR from a trunk branch.
-case "$CURRENT" in dev|main|master) echo "On $CURRENT — checkout a feature branch first." ; exit 1 ;; esac
+# Mode by current branch: feature -> dev (work PR); dev -> main (promotion PR); never from prod.
+case "$CURRENT" in
+  main|master) echo "On $CURRENT — prod has nothing to PR. Checkout dev or a feature branch." ; exit 1 ;;
+  dev)         TARGET="${1:-main}" ;;
+  *)           TARGET="${1:-dev}"  ;;
+esac
+
+# main only ever receives from dev — features never skip dev.
+if [ "$TARGET" = "main" ] && [ "$CURRENT" != "dev" ]; then
+  echo "Only dev may PR into main (got: $CURRENT). Target dev instead." ; exit 1
+fi
 
 # Target must exist.
 git rev-parse --verify --quiet "$TARGET" >/dev/null || { echo "Target branch '$TARGET' not found." ; exit 1; }
@@ -137,8 +153,9 @@ fabricated tick. Common ones:
   logic: `git diff "$TARGET...HEAD" -- 'src/**' | grep -nE 'Date\.now\(|Math\.random\('` (no hits ⇒ safe).
 - **No secrets / PII** — tick from the Step 1 scan (it passed).
 - **Tests** — tick only if the branch added/updated tests AND you ran them green.
-- **Commits Conventional + trailer + targets `dev`** — verify the `Co-Authored-By` trailer is present and
-  `$TARGET == dev`: `git log "$TARGET..HEAD" --format='%b' | grep -q 'Co-Authored-By:'`.
+- **Commits Conventional + trailer + correct target** — verify the `Co-Authored-By` trailer is present
+  (`git log "$TARGET..HEAD" --format='%b' | grep -q 'Co-Authored-By:'`) and the target matches the mode:
+  `dev` from a feature branch, `main` only from `dev`.
 
 **Human-sign-off blocks** (if the template has any — e.g. "reviewed by domain expert") — **never auto-tick
 a box that asserts a human's judgment.** Leave it blank and add one line under the checklist noting the
@@ -175,4 +192,4 @@ Print the resulting PR URL.
 - Claiming a verification command passed that you did not run. → Say what a reviewer should run instead.
 - Hardcoding/paraphrasing the template instead of reading `.github/pull_request_template.md`. → Read it fresh.
 - Pasting any `.env` value or secret into the body. → Already aborted in Step 1; never reach here.
-- Opening against `main`. → Default and validate `dev`.
+- Opening against `main` from anything other than `dev`. → Features PR into `dev`; only `dev` promotes to `main`.

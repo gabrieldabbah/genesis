@@ -1,320 +1,212 @@
 <div align="center">
 
-# ⚡ Genesis
+# Genesis
 
-### Empty folder → a working, tested, secured app. One prompt, built autonomously on your machine.
+**Autonomous project builder for [Claude Code](https://claude.com/claude-code).**
+Describe the app you want in plain English. Genesis researches it, designs it, then builds, tests, and
+security-audits it on your machine — autonomously, until it's done.
 
-Genesis is a [Claude Code](https://claude.com/claude-code) **plugin**. Tell it what you want in plain English;
-an **Opus "overlord"** lays a solid foundation, **researches and designs before writing code**, picks a stack,
-then dispatches specialist agents to build, test, and security-audit your project one item at a time —
-checkpointing around your usage limits and continuing after they reset, until it can't improve further without you.
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-6e56cf)](https://code.claude.com/docs/en/discover-plugins)
+[![Status: alpha](https://img.shields.io/badge/status-alpha-orange)](#status)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#license)
-![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-6e56cf)
-[![skills.sh](https://skills.sh/b/gabrieldabbah/genesis)](https://skills.sh/gabrieldabbah/genesis)
-![Status: alpha](https://img.shields.io/badge/status-alpha-orange)
-![Scope: greenfield](https://img.shields.io/badge/scope-greenfield--only-4fd18b)
-![No build step](https://img.shields.io/badge/dependencies-zero-success)
+**[Install](#install) · [Quick start](#quick-start) · [How it works](#how-it-works) · [FAQ](#faq)**
+
+Example: **[brandcrafter.app](https://brandcrafter.app)** — a production SaaS genesis built from an empty folder.
 
 </div>
 
 ---
 
-> [!NOTE]
-> **Greenfield only.** Genesis *creates* projects from nothing. It is not a refactor/migration tool — pointing
-> it at an existing codebase is out of scope by design.
+## What it is
 
-## Why genesis
+Genesis is a Claude Code **plugin** for starting **new** projects. Instead of jumping straight to code, it
+lays a foundation first (coding standards, docs, tests, a security sandbox), researches and designs the
+solution, and only then picks a stack — all logged with rationale. Then a lead agent — the **overlord** —
+dispatches specialist agents to build, test, review, and security-audit the project item by item, without
+stopping to ask, until the acceptance criteria are actually observed passing.
 
-Starting a project well is mostly *foundation* work that's easy to skip: a constitution and conventions, an
-agent manual, a sandbox so an AI can't wander or leak secrets, docs, a test harness, a sane plan. Skip it and an
-AI agent happily jumps to "what framework?" and starts coding the wrong thing.
+It runs entirely on your machine, on your Claude subscription. It is **greenfield-only**: it creates projects
+from an empty folder and is not a tool for changing existing codebases.
 
-Genesis refuses to do that. It lays the **mandatory foundation first**, **researches and designs before it
-writes code**, and only **then** picks a stack — all inside a sandbox you control. Then it *keeps going on its
-own*, reviewing every change against your standards, until the work is genuinely done.
+## Requirements
 
-Think "[Lovable](https://lovable.dev)/bolt-style autonomy, but running on your machine in Claude Code" — with a
-real sandbox, your own coding standards, and an optional dashboard instead of a hosted website.
+- **[Claude Code](https://claude.com/claude-code)** (terminal, VS Code, or desktop app) with a paid Claude plan.
+- **Recommended: a Claude Max subscription.** A full autonomous build is long and usage-hungry; Max gives it
+  room to finish in fewer pauses. Also recommended: include the keyword **`ultracode`** in your prompt when you
+  kick off a build — it opts Claude Code into multi-agent orchestration, which makes the build loop noticeably
+  more thorough. Genesis works fine without either.
+- **[Node.js](https://nodejs.org) 18+** — only for the optional dashboard and usage-based auto-resume.
+- **macOS** — only for the extra OS-level sandbox layer and the optional overnight auto-resumer. On Windows and
+  Linux, genesis still enforces the write-scope and secret-read rules through Claude Code permission rules;
+  everything else is cross-platform.
 
-## When to use it (and when not)
+## Install
 
-| Use genesis when… | Reach for something else when… |
-|---|---|
-| Starting a **new** project from an empty folder | You have an existing codebase to change (genesis is greenfield-only) |
-| You want it to **research, plan, and build autonomously** | You want a single quick edit or a one-off script |
-| You care about **standards, tests, and security** from line one | You're prototyping throwaway code and don't want guardrails |
-| You want a **repeatable** project setup (via seeds) | — |
+Open Claude Code (in a terminal, run `claude`; in VS Code or the desktop app, open the Claude Code panel) and
+type these two commands at the **Claude prompt** — they are Claude commands, not shell commands:
 
-## How it works — the order of operations
-
-The whole point is the **order**. Genesis never starts with "what stack?" — that's decided in Phase 4, *after*
-it understands the problem.
-
-```mermaid
-flowchart LR
-    P0["0 · Capture<br/>the problem"] --> P1["1 · Foundation<br/>(mandatory)"]
-    P1 --> P2["2 · Research<br/>& understand"]
-    P2 --> P3["3 · Architecture<br/>& docs"]
-    P3 --> P4["4 · Choose<br/>the stack"]
-    P4 --> P5["5 · Plan<br/>(the big TODO)"]
-    P5 --> P6["6 · Build<br/>autonomously 🔁"]
-    P6 --> Done(["Stop & wait<br/>for you"])
-```
-
-| Phase | What happens | Stack decided? |
-|------:|--------------|:--------------:|
-| **0** | Capture the problem + prime directive in plain English | ❌ (a stack mention is just a hint) |
-| **1** | **Foundation** — constitution, skills, `AGENTS.md` (+ `CLAUDE.md`), docs skeleton, **hardened sandbox** | ❌ stack-agnostic |
-| **2** | Research the domain with trusted sources + the web | ❌ candidate stacks researched only |
-| **3** | Design the architecture; write the docs | ❌ |
-| **4** | **Choose the stack** — derived from the architecture, rationale **logged to `DECISIONS.md`** | ✅ here |
-| **5** | Produce a dependency-ordered TODO with acceptance criteria; refine & re-sort | |
-| **6** | The overlord loops: build → test → security → review → integrate, **self-verifying**, until done | |
-
-> [!IMPORTANT]
-> Phase 1 is **non-skippable**. Every genesis repo gets the same solid foundation before any code is written.
-
-## Quick start
-
-**1. Install the plugin (once, global):**
-
-```bash
+```text
 /plugin marketplace add gabrieldabbah/genesis
 /plugin install genesis@genesis-marketplace
 ```
 
-> [!TIP]
-> **Skills-only install (any agent):** `npx skills add gabrieldabbah/genesis` installs genesis's *skills*
-> (test-gate, sources, todo, design, …) into Claude Code, Cursor, Codex, and 70+ other agents via
-> [skills.sh](https://skills.sh). That gives you the individual disciplines — but **not** the genesis system:
-> the overlord/worker **agents**, the acceptance **Stop-gate hook**, and the `/genesis` orchestration only
-> come with the full plugin install above.
+To confirm it worked, type `/genesis` — it should appear in the command list. Genesis is now available in
+every project, on every machine login.
 
-**2. Open an empty folder and start:**
+## Quick start
+
+**1.** Create an empty folder and open Claude Code in it.
+
+In a terminal:
 
 ```bash
 mkdir my-app && cd my-app && claude
 ```
+
+In VS Code or the desktop app: create a new empty folder, open it (*File → Open Folder*), then open the
+Claude Code panel.
+
+**2.** Start genesis:
+
 ```text
 /genesis
 ```
 
-**3. Answer a few plain-English questions** up front. After that, genesis runs **0 → 100% without stopping to
-ask** — it decides what it can (and logs why in `DECISIONS.md`), and defers only the things that need *your*
-accounts or credentials (creating a Stripe account, the production deploy) to a documented handoff at the end.
-When it's done, it summarizes with evidence and waits.
+**3.** Answer a short plain-English interview (what you're building, who it's for, how cautious to be).
+Then genesis runs on its own: it decides what it can (and logs *why* in a generated `docs/DECISIONS.md`), and
+defers only the things that genuinely need you — creating accounts, pasting API keys, the production deploy —
+to a documented handoff at the end.
 
-> If a run pauses at your usage limit, just type **`resume genesis`** once your limit resets — it continues from
-> the checkpoint. (More below.) Prefer a UI? Run [`/genesis-dashboard`](#the-dashboard-optional).
+**4.** Long builds can hit your Claude usage limit; genesis checkpoints itself and pauses instead of dying.
+Once the limit resets, open Claude Code in the same project folder again (`cd my-app && claude`) and type
+`resume genesis` — it continues exactly where it stopped. When it finishes, it summarizes what it built, with
+evidence, and waits.
 
-## Recommended skills
+Want a visual view? Type `/genesis-dashboard` in the same session to open a local web dashboard in your
+browser — live progress, TODO status, one-click service connections — while the session keeps running
+underneath ([details](dashboard/README.md)).
 
-Genesis runs on its own, but it's noticeably better paired with a few skills. Two ship **with genesis**; the
-rest are **third-party** — genesis references them in the `AGENTS.md` it generates and *you* install them (it
-never installs external skills for you).
+## How it works
 
-**Bundled with genesis** — already there once the plugin is installed:
+The core idea is **order**. Genesis never starts with "which framework?" — the stack is chosen in phase 4,
+*after* the problem is understood and the architecture is designed:
 
-- **`axiomatic-induction`** — the constitution *and* the reasoning method genesis applies to every decision
-  (derive from axioms, verify by observation, degrade safely). Auto-applied; you never invoke it directly.
-- **`generate-pr`** — turns a branch diff into a complete, evidence-grounded pull request (`/generate-pr`),
-  filling the PR template genesis writes into every repo.
-
-**Third-party — install yourself** (genesis just points you to them):
-
-- **`git-commit`** — Conventional-Commit messages with the right trailer, from the **awesome-copilot**
-  collection. Find and install via the [skills.sh](https://skills.sh) CLI: `npx skills find git-commit`,
-  then `npx skills add <owner/repo>` of the result you pick.
-- **`impeccable`** — a high-craft frontend/design skill set; pair it with genesis's bundled **`design`** skill
-  for genuinely top-tier UI. Install with its own CLI: `npx impeccable skills install`.
-
-> The generated `AGENTS.md` lists these with a "when to invoke which" table — alongside genesis's bundled
-> working skills (`sources`, `test-gate`, `todo`, `design`) and any third-party sets you add. Installing an
-> external skill is always a step **you** run.
-
-## Seeds — save a setup, reuse it anywhere
-
-A **seed** is a named, reusable configuration that **genesis writes for you** from a conversation — you never
-hand-author config files. It captures your archetype, stack, integrations, sandbox posture, autonomy
-preferences, and providers as readable English (with a small machine-readable header).
-
-```text
-1. /genesis                     # first project — answer the interview
-2. "save this as a seed"        # genesis writes seeds/<name>.md (or a private one, untracked)
-3. cd ../next-app && claude
-4. /genesis use <name>          # loads the seed and asks ONLY what's new (name, repo, deltas)
+```mermaid
+flowchart LR
+    P0["0 · Capture<br/>the problem"] --> P1["1 · Foundation<br/>(mandatory)"]
+    P1 --> P2["2 · Research"]
+    P2 --> P3["3 · Architecture"]
+    P3 --> P4["4 · Choose<br/>the stack"]
+    P4 --> P5["5 · Plan"]
+    P5 --> P6["6 · Build<br/>autonomously 🔁"]
+    P6 --> Done(["Done — hands<br/>you the keys"])
 ```
 
-Keep several — a `saas` seed, a `cli` seed, a per-client seed — i.e. **different genesis "presets."** Public,
-shareable seeds live in [`seeds/`](seeds/) (see [`seeds/oss-default.md`](seeds/oss-default.md) for the shape);
-private, machine-specific ones stay untracked in `seeds/private/`. Manage them with the
-[`genesis-seed`](skills/genesis-seed/SKILL.md) skill (`save`, `list`, `show`).
+| Phase | What happens |
+|------:|--------------|
+| **0** | Your goal is captured in plain English |
+| **1** | **Foundation** — coding standards, agent manual, docs skeleton, hardened sandbox. Non-skippable |
+| **2** | Research the domain and candidate approaches, with sourced claims |
+| **3** | Design the architecture and write it down |
+| **4** | Choose the stack, derived from the design, rationale logged to `docs/DECISIONS.md` |
+| **5** | Produce a dependency-ordered TODO with acceptance criteria |
+| **6** | Build loop: implement → test → security-audit → review → integrate, one item at a time |
 
-## The dashboard (optional)
+During phase 6, the **overlord** — a lead agent on the strongest available model — orchestrates specialists:
+`builder`, `tester`, `reviewer`, `secaudit`, plus per-project workers like `deploy` or `payments`. The
+overlord has no file-editing tools, so it can't cut corners by coding itself; and a lifecycle hook (Claude
+Code's Stop hook) refuses to let a run declare itself finished until the acceptance criteria are *observed*
+green, not assumed.
 
-A local **PWA** for setting up and watching a build *outside* the terminal — for less-technical users, or when
-you just want to see progress at a glance. Advanced users can ignore it entirely.
+## Safety model
 
-```bash
-node "$CLAUDE_PLUGIN_ROOT/dashboard/server.mjs"   # or: ask Claude "open the genesis dashboard"
-```
+Two layers, deliberately separated so security never blocks normal work:
 
-It opens on `127.0.0.1` (token-gated, nothing exposed to the network) and shows the **stage timeline**, the
-**TODO** with build/test status, a **live activity** feed, a **usage meter**, and **integration cards**. Click
-**Connect** on a service, paste the key (written to `.env` on your machine only, never logged), and the AI
-wires the code. It talks to genesis through two files — a state file it reads and an intent inbox it writes — so
-there's no coupling into Claude Code. Details: [`dashboard/README.md`](dashboard/README.md).
+- **Filesystem + secrets (always on):** writes only inside the project; reading secret paths (`~/.ssh`,
+  `~/.aws`, `.env`, tokens) is blocked at both the shell and file-read layers; commits, pushes, and deploys
+  always require you. Genesis *verifies* these blocks by behavior on every run rather than trusting config.
+- **Network (you choose):** `open` by default (research and browser work stay unrestricted), or an
+  `allow-list` for money/PII projects.
 
-```text
- ⚡ Genesis · my-app                              [▓▓▓▓▓░░ 62%]  [Pause]  ●
- ┌── Stage ─────────────────────────────────────────────────────────────┐
- │  ✓ Capture  ✓ Foundation  ✓ Research  ✓ Architecture  ● Choose stack  │
- │  Decided: TypeScript + Hono + Vitest (rationale → DECISIONS.md)        │
- ├── TODO ──────────────────────────────────────────────────  2/9 done ──┤
- │  [build✓][test✓] Project skeleton + CI                                 │
- │  [build●][test·] Auth middleware                                       │
- ├── Integrations ──────────────────────────────────────────────────────┤
- │  Stripe  · needs key  [Connect]      Supabase  ✓ connected [Reconnect] │
- └───────────────────────────────────────────────────────────────────────┘
-```
+## Nice to have around it
 
-## Security model — encapsulation without friction
-
-Genesis separates the two halves of "encapsulation" so security never gets in the way of, say, a web-research
-or browser-automation project:
-
-| Dial | Default | What it does |
-|---|---|---|
-| **Filesystem + secrets** *(always on)* | strict | Writes only inside your project scope; **blocks reading secrets** (`~/.ssh`, `~/.aws`, `.env`, tokens) at **both** the Bash and Read-tool layers; no commit/push/deploy without asking |
-| **Network** *(you choose)* | **open** | `open` for research/browser/AI/general dev (outbound free; files + secrets still locked) · `allow-list` for money/PII apps · `hybrid` in between |
-
-> [!TIP]
-> The strong protection is the filesystem + secret layer — that's always on. The network is a *posture* you pick
-> per project, defaulting to **open** so research and browser work aren't crippled.
-
-Genesis writes the sandbox config and then **verifies it by behavior** (it confirms an out-of-folder write and a
-secret read are actually blocked). You never edit settings or run `/sandbox`.
-
-## Integrations
-
-Each third-party service is **one file** in [`integrations/registry/`](integrations/registry/). Selecting a
-service automatically wires its **domains** (into the network allow-list), its **secret key names** (into
-`.env.example` + the deny rules), its **CLI** (into the sandbox exclusions), its **docs** (into your trusted
-sources), a matching **specialist worker**, its **security checklist**, and a **verification task**.
-
-Shipped today (extensible — add a service by dropping a YAML file):
-
-`Stripe` · `Supabase` · `Vercel` · `Fly.io` · `Render` · `Clerk` · `Resend` · `Cloudflare R2` · `Sentry` ·
-`OpenAI` · `Google Gemini`
-
-## The agent model
-
-A meticulous lead + scoped specialists — a hub and spokes:
-
-- **`overlord`** *(Opus)* — plans, dispatches, **reviews every detail** against your standards, integrates. It
-  has **no Edit/Write** tools, so it can't cut corners by coding itself.
-- **`builder` / `reviewer` / `secaudit`** *(Opus — the best model for code)* — implement test-first, audit
-  quality, run the security pass. **`tester`** *(inherits the run's model)* runs the test gate. Report-only
-  agents can't edit.
-- **Specialists** *(generated per project)* — `deploy`, `payments`, `data-migration`, `docs-writer`, `design`,
-  `a11y` — pulled in only when the work needs them.
-
-A **Stop hook** refuses to let a run "finish" until acceptance criteria are **observed green**, not assumed.
-
-## Long runs survive your usage limits
-
-A full build can outlast a single 5-hour usage window — so genesis is built to pause and continue cleanly:
-
-- It watches usage (via `ccusage`) and, **before** the cap (default 85%), **checkpoints and halts** so in-flight
-  subagents are never killed mid-work.
-- When your window resets, **type `resume genesis`** — it reads the checkpoint and picks up at the exact item it
-  stopped on. One line; works the same in the VS Code extension and the terminal.
-- *Optional, terminal-only:* to have it resume itself overnight while you're away, install a one-time macOS
-  **launchd** (or cron) job that types that for you. Handy for unattended runs; most people never need it.
-
-The in-session pause/checkpoint needs zero setup — only the hands-off overnight resumer needs the one-time job.
+- **Seeds** — after your first run, say *"save this as a seed"* and genesis writes your preferences (stack
+  tastes, sandbox posture, integrations) to a reusable file. Next project: `/genesis use <name>` skips the
+  interview. See [`seeds/`](seeds/).
+- **Integrations registry** — each supported service (Stripe, Supabase, Vercel, Fly.io, Render, Clerk, Resend,
+  Cloudflare R2, Sentry, OpenAI, Google Gemini) is one YAML file that wires its domains, key names, CLI, docs,
+  security checklist, and a specialist worker. Add a service by adding a file: [`integrations/`](integrations/).
+- **Usage-limit survival** — genesis watches your 5-hour usage window and checkpoints *before* the cap so
+  nothing dies mid-task; `resume genesis` picks up exactly where it stopped. An optional launchd/cron job can
+  do the resuming overnight.
+- **Skills-only install** — `npx skills add gabrieldabbah/genesis` (via [skills.sh](https://skills.sh)) installs
+  genesis's individual skills into Cursor, Codex, and 70+ other agents. Note that the autonomous system itself —
+  the agents, the Stop gate, `/genesis` — comes only with the plugin install above.
 
 ## What's inside
 
 | Path | Role |
 |---|---|
 | [`skills/genesis`](skills/genesis/) | the orchestrator: interview → foundation → research → design → stack → plan → build |
-| [`skills/genesis-seed`](skills/genesis-seed/) | save / load reusable seeds + one-time machine setup |
-| [`skills/genesis-dashboard`](skills/genesis-dashboard/) | launch the optional PWA dashboard |
-| `skills/{axiomatic-induction,design,todo,test-gate,sources,generate-pr}` | the constitution + the working skills (incl. UI/UX craft) |
-| `skills/{media-gen,security-audit,usage-guard}` | media/AI generation · the security pass · usage auto-resume |
-| [`agents/`](agents/) | `overlord` (Opus) + workers — best model for code/UI/UX, `inherit` for run-and-report |
+| [`skills/`](skills/) | the constitution (`axiomatic-induction` — the reasoning rules every agent follows) + working skills: `design`, `todo`, `test-gate`, `sources`, `security-audit`, `generate-pr`, `media-gen`, `usage-guard`, `genesis-seed`, `genesis-dashboard` |
+| [`agents/`](agents/) | the overlord + specialist workers |
 | [`hooks/`](hooks/) | the acceptance Stop gate |
-| [`integrations/`](integrations/) | the service registry — extensible |
-| [`dashboard/`](dashboard/) | the optional local PWA (zero-dependency server + frontend) |
-| [`templates/`](templates/) | `AGENTS.md`, docs skeleton, `.env` family, PR template |
-| [`seeds/`](seeds/) | `oss-default` (worked example); your private seeds stay untracked |
-
-## Requirements
-
-- **Claude Code** with a Pro/Max subscription (genesis stays on your subscription; image/video generation uses
-  *other* providers' API keys, kept in `.env`).
-- **macOS** for the OS-level sandbox and the launchd auto-resume (the rest is cross-platform).
-- **Node.js** — only if you use the dashboard or `ccusage`-based auto-resume.
-- **rtk** *(optional)* — if present, genesis routes commands through it for token savings; if absent, it falls
-  back to plain commands. Never required.
+| [`integrations/`](integrations/) | the service registry (one YAML per service — extensible) |
+| [`dashboard/`](dashboard/) | the optional local dashboard (zero-dependency Node server + PWA) |
+| [`templates/`](templates/) | scaffolding: agent manual, docs skeleton, env files, PR template |
+| [`seeds/`](seeds/) | reusable configuration presets |
 
 ## FAQ
 
 <details>
-<summary><b>Does it work in the VS Code extension? How do I resume after a pause?</b></summary>
+<summary><b>Does it cost extra beyond my Claude subscription?</b></summary>
 
-Yes — fully, the same as the terminal. If a run pauses at your usage limit, it saves a checkpoint and stops.
-When your limit resets, type **`resume genesis`** and it continues exactly where it left off — one line, no
-flags, no terminal gymnastics. (The optional overnight auto-resumer is the only terminal-specific piece, and
-most people don't need it.)
+No — genesis runs entirely on your Claude Code subscription. Only optional third-party media generation
+(OpenAI, Google, …) uses those providers' own API keys and billing, and only if you enable it.
 </details>
 
 <details>
-<summary><b>Does this use the API and cost extra?</b></summary>
+<summary><b>Will it commit, deploy, or create accounts without asking?</b></summary>
 
-No — genesis runs on your Claude Code subscription. Only third-party media/AI generation (OpenAI, Google, …)
-uses those providers' own API keys and billing, and only if you enable them.
+No. Those need your explicit go-ahead. Genesis builds everything around them in test/sandbox mode, writes the
+exact remaining steps to `docs/DEPLOYMENT.md`, and hands them to you at the end — it doesn't stop mid-build to ask.
 </details>
 
 <details>
-<summary><b>Will it commit or deploy without asking?</b></summary>
+<summary><b>Can it read my secrets or write outside the project?</b></summary>
 
-No — and it won't pester you mid-run either. Commits, pushes, deploys, account creation, and live keys are
-things only you can authorize: genesis builds everything *around* them (in test/sandbox mode), collects the
-exact steps into `docs/DEPLOYMENT.md`, and hands them to you to run at the end. It doesn't stop the build to ask.
+The sandbox blocks both, and genesis verifies the blocks by behavior (it confirms an out-of-project write and a
+secret read actually fail) on every run. See [Safety model](#safety-model).
 </details>
 
 <details>
-<summary><b>Can it leak my secrets or write outside the project?</b></summary>
+<summary><b>Does it work in the VS Code extension?</b></summary>
 
-The sandbox blocks reading secret paths (both the Bash and Read-tool layers) and writing outside your chosen
-scope, and genesis verifies this by behavior on every run. The network can additionally be locked to an
-allow-list for sensitive projects.
+Yes, fully — including pause/resume. The only terminal-specific piece is the optional overnight auto-resumer.
 </details>
 
 <details>
-<summary><b>Do I have to use the dashboard?</b></summary>
+<summary><b>Can I point it at an existing codebase?</b></summary>
 
-No. It's optional and aimed at less-technical users. The full flow works from the terminal.
+No — greenfield-only by design. It creates projects from an empty folder; refactoring or migrating existing
+code is out of scope.
 </details>
 
-## Status & roadmap
+## Status
 
-> [!WARNING]
-> **Alpha.** Genesis is new and evolving. Two things are version-sensitive and self-correct on first run: the
-> exact sandbox setting names (genesis verifies behaviorally and adjusts) and the `ccusage` output format (read
-> defensively). Try it on throwaway projects first and review what it generates.
-
-Planned: more integrations, a richer specialist library, and a hosted-mode option.
+**Alpha.** Genesis is new and evolving. Two Claude Code internals it depends on can change between versions —
+the exact sandbox setting names, and the output of [`ccusage`](https://github.com/ryoppippi/ccusage) (the CLI
+it uses to read your usage) — and genesis detects and adapts to both on first run. Try it on throwaway
+projects first, and review what it generates.
 
 ## Contributing
 
-Issues and PRs welcome. The cleanest contribution is a **new integration**: drop a `registry/<id>.yaml` (+ an
-optional `agents/_library/<worker>.md`) following [`integrations/README.md`](integrations/README.md). Keep
-everything English-first and free of personal names, machine paths, and secrets.
+Issues and PRs welcome. The highest-value contribution is a **new integration**: add a
+`integrations/registry/<id>.yaml` (plus an optional specialist worker) following
+[`integrations/README.md`](integrations/README.md). Keep everything English-first and free of personal names,
+machine-specific paths, and secrets.
 
 ## License
 
-[MIT](LICENSE).
+[MIT](LICENSE)

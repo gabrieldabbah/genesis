@@ -15,6 +15,10 @@ seeds/*.local.md
 .DS_Store
 *.bak
 
+# local Claude Code / agent config — personal, never committed
+.claude/
+.agents/
+
 # local scratch
 .scratch/*
 !.scratch/README.md
