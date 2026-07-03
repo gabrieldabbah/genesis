@@ -1,0 +1,10 @@
+id: resend
+category: email
+domains: [api.resend.com]
+env_keys: [RESEND_API_KEY]
+cli: []
+sandbox_unfriendly_cli: false
+security: [api-key-server-only, no-open-relay, spf-dkim-configured, no-pii-in-logs]
+docs_source: https://resend.com/docs
+verify: "a test email sends and the API returns a message id"
+notes: "verify sending domain (SPF/DKIM) before production sends"

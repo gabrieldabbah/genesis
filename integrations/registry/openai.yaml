@@ -1,0 +1,12 @@
+id: openai
+category: ai-media
+domains: [api.openai.com]
+env_keys: [OPENAI_API_KEY]
+cli: []
+sandbox_unfriendly_cli: false
+capabilities: [image, audio, text]
+fallbacks: [google-gemini]        # fail over to these (resilience — see templates/docs/RESILIENCE.md)
+security: [api-key-server-only, spend-limit-set, no-pii-to-provider-without-consent, prompt-injection-aware]
+docs_source: https://platform.openai.com/docs
+verify: "a small image/text generation call returns successfully and is logged with cost"
+notes: "consumed by the media-gen skill; set a billing spend limit"

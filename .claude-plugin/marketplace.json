@@ -1,0 +1,12 @@
+{
+  "name": "genesis-marketplace",
+  "description": "Marketplace for the genesis plugin: empty folder to a working, tested, secured app — built autonomously by an Opus overlord and specialist agents.",
+  "owner": { "name": "gabrieldabbah" },
+  "plugins": [
+    {
+      "name": "genesis",
+      "source": "./",
+      "description": "Greenfield genesis: interview -> scaffold -> autonomous build under an Opus overlord, sandbox-hardened and standards-compliant."
+    }
+  ]
+}

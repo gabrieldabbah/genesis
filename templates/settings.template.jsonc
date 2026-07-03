@@ -1,0 +1,48 @@
+// Template for a scaffolded project's .claude/settings.json.
+// Genesis FILLS this at runtime from the interview/seed — do not ship it verbatim into a project.
+// Two layers protect secrets: sandbox.filesystem.denyRead (Bash) AND permissions.deny Read(...) (Read tool).
+// Confirm the exact sandbox.* key names on the target build via /sandbox before relying on this.
+{
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": true,        // escape hatch: soft-fail to a prompt, never hard-fail a run
+    "failIfUnavailable": false,
+    "filesystem": {
+      "allowWrite": ["{{WRITE_PATH}}"],      // the scope the user chose (this project, or the dev parent)
+      "denyRead": [
+        "~/.ssh", "~/.aws", "~/.gnupg", "~/.config/gh",
+        "~/.netrc", "~/.npmrc", "~/.config/git"
+      ]
+    },
+    // NETWORK POSTURE (chosen per project) — governs OUTBOUND access only, NOT exposing the app:
+    //   open       -> omit the whole "network" block (outbound unrestricted; filesystem + secrets still locked).
+    //                 Default for research / browser / scraper / AI / general dev.
+    //   allow-list -> keep "network.allowedDomains" as below. For money/PII apps.
+    //   hybrid     -> allow-list plus the few broad domains the project genuinely needs.
+    // EXPOSURE (separate rule): dev/test must NOT expose the app — bind 127.0.0.1, never 0.0.0.0; no tunnels;
+    //   open a public port ONLY at deploy. "localhost" below is outbound loopback, not app exposure.
+    "network": {
+      "allowedDomains": [
+        "localhost", "127.0.0.1",
+        "github.com", "*.githubusercontent.com", "codeload.github.com",
+        "registry.npmjs.org", "nodejs.org",
+        "crates.io", "static.crates.io", "pypi.org", "files.pythonhosted.org",
+        "api.anthropic.com", "docs.anthropic.com", "code.claude.com"
+        // {{INTEGRATION_DOMAINS}}  — appended per chosen integration
+        // {{TRUSTED_SOURCE_DOMAINS}} — from docs/SOURCES.md
+      ]
+    },
+    "excludedCommands": [
+      // {{EXCLUDED_COMMANDS}} — installed tools / integration CLIs that fail under Seatbelt, e.g.:
+      "docker *", "gh *"
+    ]
+  },
+  "permissions": {
+    "deny": [
+      "Read(~/.ssh/**)", "Read(~/.aws/**)", "Read(~/.gnupg/**)", "Read(~/.config/gh/**)",
+      "Read(~/.netrc)", "Read(~/.npmrc)", "Read(~/.config/git/**)",
+      "Read(//**/.env)", "Read(//**/.env.*)", "Read(**/secrets/**)"
+      // {{INTEGRATION_SECRET_PATHS}} — env files / key paths for chosen integrations
+    ]
+  }
+}

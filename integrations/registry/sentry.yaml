@@ -1,0 +1,10 @@
+id: sentry
+category: observability
+domains: ["*.ingest.sentry.io", sentry.io]
+env_keys: [SENTRY_DSN, SENTRY_AUTH_TOKEN]
+cli: [sentry-cli]
+sandbox_unfriendly_cli: true
+security: [scrub-pii-before-send, dsn-is-not-a-secret-but-token-is, source-maps-not-public]
+docs_source: https://docs.sentry.io
+verify: "a thrown test error appears in the Sentry project"
+notes: "configure beforeSend to scrub PII; auth token is for source-map upload only"
