@@ -52,8 +52,10 @@ everything else is cross-platform.
 
 ## Install
 
-Open Claude Code (in a terminal, run `claude`; in VS Code or the desktop app, open the Claude Code panel) and
-type these two commands at the **Claude prompt**, one at a time — they are Claude commands, not shell commands:
+Two steps everywhere: **1)** register this repo as a plugin source, **2)** install the plugin from it. Pick
+the way that matches how you use Claude Code:
+
+**Terminal / VS Code / desktop app — at the Claude prompt** (not your shell), one command at a time:
 
 ```text
 /plugin marketplace add gabrieldabbah/genesis
@@ -63,12 +65,22 @@ type these two commands at the **Claude prompt**, one at a time — they are Cla
 /plugin install genesis@genesis-marketplace
 ```
 
-The first registers this repo as a plugin source; the second installs the plugin from it
-(`genesis@genesis-marketplace` = plugin `genesis` from the marketplace named `genesis-marketplace` — it goes
-with `install`, not with `marketplace add`).
+**Through the `/plugin` menu** (any surface): type `/plugin`, add a marketplace and enter
+`gabrieldabbah/genesis` as the source, then install **genesis** from the plugin list.
 
-To confirm it worked, type `/genesis` — it should appear in the command list. Genesis is now available in
-every project, on every machine login.
+**From your shell** (scriptable — e.g. for dotfiles or machine setup):
+
+```bash
+claude plugin marketplace add gabrieldabbah/genesis
+claude plugin install genesis@genesis-marketplace
+```
+
+> Note the two different formats: *marketplace add* takes a **source** (`owner/repo`, a URL, or a path);
+> *install* takes an **address** (`plugin@marketplace` — here, plugin `genesis` from the marketplace named
+> `genesis-marketplace`). Don't paste the `@` form into "add marketplace" — it will be rejected.
+
+To confirm it worked, type `/genesis` — it should appear in the command list. Installed once, genesis is
+available in every project on that machine.
 
 ## Quick start
 
