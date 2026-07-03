@@ -31,28 +31,56 @@ from an empty folder and is not a tool for changing existing codebases.
 
 ## Requirements
 
+**Required:**
+
 - **[Claude Code](https://claude.com/claude-code)** (terminal, VS Code, or desktop app) with a paid Claude plan.
-- **Recommended: a Claude Max subscription.** A full autonomous build is long and usage-hungry; Max gives it
-  room to finish in fewer pauses. Also recommended: include the keyword **`ultracode`** in your prompt when you
-  kick off a build — it opts Claude Code into multi-agent orchestration, which makes the build loop noticeably
-  more thorough. Genesis works fine without either.
-- **[Node.js](https://nodejs.org) 18+** — only for the optional dashboard and usage-based auto-resume.
-- **macOS** — only for the extra OS-level sandbox layer and the optional overnight auto-resumer. On Windows and
-  Linux, genesis still enforces the write-scope and secret-read rules through Claude Code permission rules;
-  everything else is cross-platform.
+- **[Node.js](https://nodejs.org) 18+** — only if you use the optional dashboard or usage-based auto-resume.
+
+**Recommended:**
+
+- **Claude Max** — a full autonomous build is long and usage-hungry; Max gives it room to finish in fewer
+  pauses. Works on Pro, just with more waiting.
+- **Auto mode** — let Claude Code run without approving every action; that's what makes an unattended build
+  actually unattended. Genesis pairs it with the sandbox it sets up, but you enable it at your own risk — we
+  are not responsible for issues caused by running with reduced permission prompts.
+- **`ultracode`** — strongly recommended, not required. Include the keyword in the prompt that kicks off a
+  build: it opts Claude Code into multi-agent orchestration, and the build loop gets noticeably more thorough.
+
+**Platforms:** macOS gets the extra OS-level sandbox layer and the optional overnight auto-resumer. On Windows
+and Linux, genesis still enforces the write-scope and secret-read rules through Claude Code permission rules;
+everything else is cross-platform.
 
 ## Install
 
-Open Claude Code (in a terminal, run `claude`; in VS Code or the desktop app, open the Claude Code panel) and
-type these two commands at the **Claude prompt** — they are Claude commands, not shell commands:
+Two steps everywhere: **1)** register this repo as a plugin source, **2)** install the plugin from it. Pick
+the way that matches how you use Claude Code:
+
+**Terminal / VS Code / desktop app — at the Claude prompt** (not your shell), one command at a time:
 
 ```text
 /plugin marketplace add gabrieldabbah/genesis
+```
+
+```text
 /plugin install genesis@genesis-marketplace
 ```
 
-To confirm it worked, type `/genesis` — it should appear in the command list. Genesis is now available in
-every project, on every machine login.
+**Through the `/plugin` menu** (any surface): type `/plugin`, add a marketplace and enter
+`gabrieldabbah/genesis` as the source, then install **genesis** from the plugin list.
+
+**From your shell** (scriptable — e.g. for dotfiles or machine setup):
+
+```bash
+claude plugin marketplace add gabrieldabbah/genesis
+claude plugin install genesis@genesis-marketplace
+```
+
+> Note the two different formats: *marketplace add* takes a **source** (`owner/repo`, a URL, or a path);
+> *install* takes an **address** (`plugin@marketplace` — here, plugin `genesis` from the marketplace named
+> `genesis-marketplace`). Don't paste the `@` form into "add marketplace" — it will be rejected.
+
+To confirm it worked, type `/genesis` — it should appear in the command list. Installed once, genesis is
+available in every project on that machine.
 
 ## Quick start
 
