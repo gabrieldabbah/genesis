@@ -44,12 +44,19 @@ from an empty folder and is not a tool for changing existing codebases.
 ## Install
 
 Open Claude Code (in a terminal, run `claude`; in VS Code or the desktop app, open the Claude Code panel) and
-type these two commands at the **Claude prompt** — they are Claude commands, not shell commands:
+type these two commands at the **Claude prompt**, one at a time — they are Claude commands, not shell commands:
 
 ```text
 /plugin marketplace add gabrieldabbah/genesis
+```
+
+```text
 /plugin install genesis@genesis-marketplace
 ```
+
+The first registers this repo as a plugin source; the second installs the plugin from it
+(`genesis@genesis-marketplace` = plugin `genesis` from the marketplace named `genesis-marketplace` — it goes
+with `install`, not with `marketplace add`).
 
 To confirm it worked, type `/genesis` — it should appear in the command list. Genesis is now available in
 every project, on every machine login.
