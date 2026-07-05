@@ -1,6 +1,6 @@
 {
   "name": "genesis",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Greenfield project genesis: an English-first, sandbox-hardened, multi-agent (Opus overlord + specialist workers) system that interviews you, scaffolds a standards-compliant repo, plans, then builds + tests + secures it autonomously until it can't improve without you.",
   "keywords": ["scaffold", "orchestrator", "subagents", "sandbox", "autonomous", "greenfield", "agents", "skills"],
   "author": { "name": "gabrieldabbah" },
