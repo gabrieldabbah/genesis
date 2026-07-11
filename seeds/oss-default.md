@@ -21,9 +21,11 @@ sandbox:
   scope: project                    # project | dev-parent  (dev-parent = the folder holding your repos)
   write_path: "."                   # resolved at scaffold; dev-parent is detected/asked, never hardcoded
   network_posture: open             # open | allow-list | hybrid
-                                    #   open      = unrestricted outbound (research/browser/AI/general dev);
+                                    #   open      = unrestricted outbound — the default for EVERY archetype,
+                                    #               money/PII included (installs/research/CLIs never blocked);
                                     #               filesystem + secret protection still fully apply
-                                    #   allow-list= only the domains below (use for money/PII apps)
+                                    #   allow-list= only the domains below. Deployed-app egress or the rare
+                                    #               real-production-PII dev case — not a money/PII default
                                     #   hybrid    = allow-list + a broad allowance
   network:
     base: [localhost, github, npm-registry, pypi, crates, anthropic-docs]   # OUTBOUND only; used when posture = allow-list/hybrid
