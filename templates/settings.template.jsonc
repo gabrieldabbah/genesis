@@ -48,5 +48,23 @@
       "Read(//**/.env)", "Read(//**/.env.*)", "Read(**/secrets/**)"
       // {{INTEGRATION_SECRET_PATHS}} — env files / key paths for chosen integrations
     ]
+  },
+  // KEEP-GOING Stop hook — makes ordinary sessions in this project persistent (they resist stopping until work
+  // is genuinely human-blocked or done, ending only on the HOOK_STOP_OK sentinel; see AGENTS.md). Declaring it
+  // here is the approval surface — the harness may prompt once to trust it. Genesis ships .claude/hooks/keep-
+  // going.mjs and ARMS it (.claude/keep-going.on); the hook is dormant if that flag file is deleted, and it
+  // fails open (a usage-guard pause or a running /genesis build always allows the stop).
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/keep-going.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }
