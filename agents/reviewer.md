@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Code-quality reviewer for genesis. Audits a change for correctness, simplicity, reuse, and adherence to AGENTS.md and the constitution. Reports findings with file:line and rationale; does not modify code. Use after builder, before integration.
+description: Code-quality reviewer for genesis. Audits a change for correctness, simplicity, reuse, and adherence to AGENTS.md and the constitution. Reports findings with file:line and rationale; does not modify code. Use after builder, before integration. Dispatch ONLY during a /genesis autonomous build or resume, or when ultracode is enabled — never in ordinary sessions.
 model: opus
 tools: Read, Bash, Grep, Glob
 ---

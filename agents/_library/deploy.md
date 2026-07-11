@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Deployment specialist. Wires and verifies deploys to the chosen hosting integration (Vercel, Render, Fly.io, Netlify, Cloudflare, Railway). Sets up config/CI; defers the production deploy to the human handoff (docs/DEPLOYMENT.md) rather than stopping the run.
+description: Deployment specialist. Wires and verifies deploys to the chosen hosting integration (Vercel, Render, Fly.io, Netlify, Cloudflare, Railway). Sets up config/CI; defers the production deploy to the human handoff (docs/DEPLOYMENT.md) rather than stopping the run. Dispatch ONLY during a /genesis autonomous build or resume, or when ultracode is enabled — never in ordinary sessions.
 model: opus
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---

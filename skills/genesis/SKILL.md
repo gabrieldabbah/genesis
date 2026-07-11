@@ -188,6 +188,11 @@ items are **deferred to `docs/DEPLOYMENT.md`**, not asked about mid-run or auto-
 - **Usage-aware** (`usage-guard`): at the threshold it stops starting new work, lets in-flight workers finish,
   checkpoints **silently** (a state-save — it never asks you to restart it or confirm a resume), and halts
   cleanly so the external resumer **auto-resumes** after the reset.
+- **The subagent mandate ends with the run (PARAMOUNT).** Worker fan-out is sanctioned *inside this build/resume*
+  (and in sessions with ultracode enabled) — nowhere else. If ultracode is switched off mid-run, the overlord
+  stops dispatching (its §Dispatch discipline), checkpoints, and halts. After the build, ordinary sessions in
+  the project work inline, single-agent — the scaffolded `AGENTS.md` golden rule 12 and every worker's
+  description enforce this; do not re-enter overlord mode for post-build tweaks unless ultracode is on.
 - **Run to 100%, never stop to ask** (`overlord` §Run to 100%): empty repo → built/tested/reviewed/documented
   SaaS in one prompt. **Never ask a choice question** — if options are all on `docs/TODO.md`, do them all in
   dependency order. **Decide and log** anything the spec/best-practice settles (A5); don't ask. **Self-verify
