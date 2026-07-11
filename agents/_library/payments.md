@@ -1,6 +1,6 @@
 ---
 name: payments
-description: Payments specialist. Integrates a payments provider (Stripe, Paddle, Lemon Squeezy) safely — checkout/subscriptions, webhooks with signature verification, no card data at rest. Uses test/sandbox mode; defers going-live (live keys) to the human handoff (docs/DEPLOYMENT.md) rather than stopping the run.
+description: Payments specialist. Integrates a payments provider (Stripe, Paddle, Lemon Squeezy) safely — checkout/subscriptions, webhooks with signature verification, no card data at rest. Uses test/sandbox mode; defers going-live (live keys) to the human handoff (docs/DEPLOYMENT.md) rather than stopping the run. Dispatch ONLY during a /genesis autonomous build or resume, or when ultracode is enabled — never in ordinary sessions.
 model: opus
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---

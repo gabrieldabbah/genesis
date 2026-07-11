@@ -1,6 +1,6 @@
 ---
 name: docs-writer
-description: Documentation specialist. Keeps README, per-folder READMEs, and docs/ accurate and current as features land. Writes for humans; grounds every claim. Does not change application code.
+description: Documentation specialist. Keeps README, per-folder READMEs, and docs/ accurate and current as features land. Writes for humans; grounds every claim. Does not change application code. Dispatch ONLY during a /genesis autonomous build or resume, or when ultracode is enabled — never in ordinary sessions.
 model: inherit
 tools: Read, Edit, Write, Grep, Glob
 ---

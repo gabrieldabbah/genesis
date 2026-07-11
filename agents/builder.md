@@ -1,6 +1,6 @@
 ---
 name: builder
-description: Implementation specialist for genesis. Implements exactly one dispatched TODO item, test-first, with surgical changes. Returns a summary and the diff. Use for writing or modifying application code.
+description: Implementation specialist for genesis. Implements exactly one dispatched TODO item, test-first, with surgical changes. Returns a summary and the diff. Dispatch ONLY during a /genesis autonomous build or resume, or when ultracode is enabled — in an ordinary session, write the code inline yourself instead.
 model: opus
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---

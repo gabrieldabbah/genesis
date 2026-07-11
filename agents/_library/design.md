@@ -1,6 +1,6 @@
 ---
 name: design
-description: UI/UX craft specialist. Designs and implements interfaces to a high bar using the design skill — design system/tokens, every component and screen state (incl. empty/loading/error), responsive layout, and polish. Use for any UI work; pairs with the a11y specialist.
+description: UI/UX craft specialist. Designs and implements interfaces to a high bar using the design skill — design system/tokens, every component and screen state (incl. empty/loading/error), responsive layout, and polish. Pairs with the a11y specialist. Dispatch ONLY during a /genesis autonomous build or resume, or when ultracode is enabled — in an ordinary session, apply the design skill inline yourself instead.
 model: opus
 tools: Read, Edit, Write, Bash, Grep, Glob, WebSearch, WebFetch
 ---

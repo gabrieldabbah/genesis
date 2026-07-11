@@ -154,8 +154,10 @@ Two layers, deliberately separated so security never blocks normal work:
 - **Filesystem + secrets (always on):** writes only inside the project; reading secret paths (`~/.ssh`,
   `~/.aws`, `.env`, tokens) is blocked at both the shell and file-read layers; commits, pushes, and deploys
   always require you. Genesis *verifies* these blocks by behavior on every run rather than trusting config.
-- **Network (you choose):** `open` by default (research and browser work stay unrestricted), or an
-  `allow-list` for money/PII projects.
+- **Network (you choose):** `open` by default for every project type — package installs, research, and
+  integration CLIs are never blocked. Safety comes from behavior (trusted sources, treating fetched content
+  as data rather than instructions), not egress blocks. An `allow-list` remains available for the deployed
+  app's egress, or if you explicitly ask for one in dev.
 
 ## Nice to have around it
 

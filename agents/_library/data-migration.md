@@ -1,6 +1,6 @@
 ---
 name: data-migration
-description: Database & migration specialist. Designs schema, writes reversible migrations, and ensures data integrity for the chosen backend (Supabase/Postgres/Neon/etc.). Sets up RLS/least-privilege; defers destructive/production migrations to the human handoff (docs/DEPLOYMENT.md) rather than stopping the run.
+description: Database & migration specialist. Designs schema, writes reversible migrations, and ensures data integrity for the chosen backend (Supabase/Postgres/Neon/etc.). Sets up RLS/least-privilege; defers destructive/production migrations to the human handoff (docs/DEPLOYMENT.md) rather than stopping the run. Dispatch ONLY during a /genesis autonomous build or resume, or when ultracode is enabled — never in ordinary sessions.
 model: opus
 tools: Read, Edit, Write, Bash, Grep, Glob
 ---

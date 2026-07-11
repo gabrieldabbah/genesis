@@ -66,6 +66,13 @@ docs map lives (§11). Keep it to ~5 lines. -->
     sentence about how good it is. Gut-check every user-facing string: name the concrete fact, number, feature,
     or next action behind it — if there is none, cut it. Applies to UI copy, landing/marketing pages, headings,
     docs, comments, and commit/PR text. *(A15, A20, A11)*
+12. **Subagents only under ultracode — PARAMOUNT.** Dispatching subagents/workers (Task tool, the genesis
+    worker roster) is sanctioned in exactly two cases: the session has **ultracode enabled** (a system
+    reminder confirms it), or the session is running/resuming the **`/genesis` autonomous build** itself.
+    In every other session — including this project after its build is done — work **inline, single-agent**,
+    no matter how well a worker's description matches the task. **Every new session assumes ultracode is OFF
+    until a reminder says otherwise.** If ultracode is switched off mid-session, stop dispatching new
+    subagents immediately (in-flight ones may finish). Harnesses without an ultracode concept: never dispatch.
 
 ## 3. How we work
 
