@@ -91,6 +91,14 @@ Lay the must-have substrate **before any stack talk** — this is the template e
   human-blocked or done — the agent ends only by emitting the `HOOK_STOP_OK` sentinel (documented in the
   scaffolded `AGENTS.md`). It fails open (unreadable transcript, a `usage-guard` pause, or a running `/genesis`
   build all allow the stop) and is disarmed by deleting `.claude/keep-going.on`.
+- **Install the decide-yourself PreToolUse hook** (companion to keep-going) so the agent answers its own
+  questions instead of asking: copy `templates/decide-yourself.mjs` → `.claude/hooks/decide-yourself.mjs`,
+  register it under `hooks.PreToolUse` with `"matcher": "AskUserQuestion"` (the block is already in
+  `templates/settings.template.jsonc`), and **arm it** by creating `.claude/decide-yourself.on`. It DENIES an
+  AskUserQuestion — telling the agent to decide from the goal + docs (what to build first, which stack/approach)
+  — unless the agent re-issues the question with the token `NEEDS-HUMAN`, reserved for what a human alone can
+  settle (a secret/credential, a subjective preference, a destructive confirmation, or a real scope change). It
+  fails open and is disarmed by deleting `.claude/decide-yourself.on`.
 - **No network exposure in dev/test** (hard rule): never auto-start servers; never bind a public interface. If a
   server is genuinely needed (an asked-for preview, an e2e test), bind **`127.0.0.1` only — never `0.0.0.0`** —
   and tear it down. Opening a public port happens **only at deploy** (a 🚧 human gate). There is no reason to
