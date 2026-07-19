@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)",
+      "Read(./secrets/**)",
+      "Read(./**/*.key)",
+      "Read(./**/*.pem)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.gnupg/**)",
+      "Read(~/.config/gh/**)",
+      "Read(~/.netrc)",
+      "Read(~/.npmrc)",
+      "Read(~/.config/git/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/decide-yourself.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/keep-going.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

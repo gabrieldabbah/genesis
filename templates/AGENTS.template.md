@@ -80,8 +80,11 @@ docs map lives (§11). Keep it to ~5 lines. -->
     review, secrets, live deploy), (b) a true roadblock makes progress impossible, or (c) the human asked only a
     question or one scoped task and it is fully done. When one holds, **briefly say why and end your message with
     the exact sentinel `HOOK_STOP_OK`** — that is the only way to stop. Never ask the human to choose between
-    options you could decide yourself (§3): pick the best, log it, continue. To turn this off, delete
-    `.claude/keep-going.on`. *(A2, A21)*
+    options you could decide yourself (§3): pick the best, log it, continue — a companion **decide-yourself**
+    PreToolUse hook (`.claude/hooks/decide-yourself.mjs`, armed by `.claude/decide-yourself.on`) enforces this by
+    **denying an AskUserQuestion** unless you re-issue it with the token `NEEDS-HUMAN`, reserved for what only a
+    human can settle (a secret/credential, a subjective preference, a destructive confirmation, or a real scope
+    change). To turn either off, delete its flag (`.claude/keep-going.on` / `.claude/decide-yourself.on`). *(A2, A21)*
 
 ## 3. How we work
 
