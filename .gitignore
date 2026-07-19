@@ -15,9 +15,17 @@ seeds/*.local.md
 .DS_Store
 *.bak
 
-# local Claude Code / agent config — personal, never committed
-.claude/
+# local Claude Code / agent config — personal, never committed…
+.claude/*
 .agents/
+# …except the committed autonomy hooks + their wiring (keep-going Stop hook & decide-yourself
+# question gate), so working ON genesis dogfoods them. settings.local.json, skills/, and the
+# transient hook-stop-ok marker stay personal/ignored.
+!.claude/hooks/
+!.claude/settings.json
+!.claude/keep-going.on
+!.claude/decide-yourself.on
+.claude/hook-stop-ok
 
 # local scratch
 .scratch/*
