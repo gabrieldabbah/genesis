@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Stop hook — "keep going until there is genuinely nothing left I can do."
+ * Stop hook — "keep going until there is genuinely nothing left I can do — unless the human drew a boundary."
  *
  * Registered under .claude/settings.json → hooks.Stop. On every attempt to end a turn the harness runs this
  * script; if it prints {"decision":"block","reason":"…"} the turn does NOT end and `reason` is fed back to the
@@ -14,6 +14,16 @@
  * Escape hatch: the model may end a message with the sentinel HOOK_STOP_OK — and only then is it allowed to
  * stop. The rubric below tells it exactly when that is permitted.
  *
+ * v3 (scope-aware) rubric: by DEFAULT the session runs the plan/TODO to completion — that is the point of the
+ * hook. The one boundary that beats the TODO is an EXPLICIT scope limit in the human's latest prompt ("only …",
+ * "just …", "nothing else") or a pure question: then delivering exactly that, verified, is the exit. To make
+ * that test concrete the hook extracts the human's latest real message from the transcript and echoes it
+ * verbatim at the top of the rubric (fail-soft: no injection if it can't be read).
+ *
+ * Genesis integration (no-ops elsewhere): allows the stop when a usage-guard pause is underway
+ * (.scratch/resume.json) or a /genesis build is running (.scratch/acceptance.json — its acceptance gate owns
+ * stopping there).
+ *
  * 2026-07-12 hardening: the transcript flushes the final text block AFTER the Stop hook can run, so a
  * legitimately-emitted sentinel was sometimes invisible and the block looped forever. Two fixes:
  * (1) the sentinel scan covers the recent transcript tail, not just the single last assistant event
@@ -25,24 +35,36 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const RUBRIC = [
-  'DO NOT STOP yet unless the exit test passes. Re-evaluate honestly, right now:',
-  '',
-  'Is EVERY remaining item in the plan / TODO gated by something ONLY THE HUMAN can do — a manual test, a',
-  'visual/UX inspection, real credentials or secrets, or a live deploy?',
-  '  • If YES  → you may stop.',
-  '  • If NO   → you MUST continue: pick the next unblocked item and actually do it (build, verify, commit).',
-  '',
-  'If you are unsure which option / stack / library / approach is best: DO NOT ask the human — they will only',
-  'tell you to pick the better one. Brainstorm, choose the best option, log the decision, and continue.',
-  '',
-  'The ONLY valid reasons to stop are:',
-  '  (a) every remaining task genuinely needs the human (manual test, visual review, secrets, real deploy), OR',
-  '  (b) you hit a true roadblock where it is impossible for you to proceed, OR',
-  '  (c) the human asked only a question or a single scoped task and it is fully done.',
-  '',
-  'When — and only when — one of those holds: briefly say why, then end your message with exactly HOOK_STOP_OK',
-].join('\n');
+function rubric(request) {
+  const head = request
+    ? ["The human's LATEST request (verbatim, possibly truncated):", `«${request}»`, '']
+    : [];
+  return head.concat([
+    'Re-anchor before deciding — answer from the transcript, not memory:',
+    '  REQUEST — what did the human ask in their LATEST prompt, in their words?',
+    '  Did it EXPLICITLY limit scope ("only …", "just …", "nothing else", or a pure question)?',
+    '',
+    '• LIMITED (explicit limit / pure question) — the human drew the boundary; respect it.',
+    '  Exit test: is the request itself — all of it — done and verified (output observed, not hoped)?',
+    '    – DONE → stop now. Do NOT pick up TODO or adjacent work — the human said not to. If you',
+    '      noticed something worth doing, suggest it in one line; the human decides.',
+    '    – NOT DONE → finish the request. Stay inside its boundary.',
+    '',
+    '• EVERYTHING ELSE — the default: this session runs the work to completion.',
+    '  Exit test: is EVERY remaining plan/TODO item gated by something ONLY the human can do',
+    '  (manual test, visual/UX inspection, real credentials/secrets, live deploy)?',
+    '    – YES → stop.',
+    '    – NO  → pick the next unblocked item and actually do it (build, verify, commit).',
+    '  Never stop to ask which option/stack/approach is best — the human would only say "pick the',
+    '  better one". Decide, log why, continue.',
+    '',
+    'Also valid in either mode: a true roadblock you cannot pass (say what you tried), or the next',
+    'step needs something only the human has (a secret, an account, a manual check).',
+    '',
+    "To stop: one line stating which exit applies + the evidence (e.g. \"LIMITED request 'docs only'",
+    'done — README + docs/ updated"), then end your message with exactly HOOK_STOP_OK',
+  ]).join('\n');
+}
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -88,6 +110,37 @@ function tailHasSentinel(transcriptPath, n = 12) {
   return false;
 }
 
+// v3: the human's latest REAL message, echoed into the rubric so the scope test is concrete.
+// Skips tool_result-only events, meta/command wrappers, interruption stubs, and our own block
+// echo ("Stop hook feedback: …" — though if the human typed after the echoed rubric, that tail
+// IS the latest request). Fail-soft: returns null and the rubric falls back to "re-read it".
+function latestHumanText(transcriptPath, maxLen = 600) {
+  const truncate = (t) => (t.length > maxLen ? t.slice(0, maxLen) + ' …[truncated]' : t);
+  try {
+    const lines = fs.readFileSync(transcriptPath, 'utf8').trim().split('\n');
+    for (let i = lines.length - 1; i >= 0; i--) {
+      let ev;
+      try { ev = JSON.parse(lines[i]); } catch { continue; }
+      if (ev.type !== 'user' || ev.isMeta || !ev.message) continue;
+      const c = ev.message.content;
+      let t = '';
+      if (typeof c === 'string') t = c;
+      else if (Array.isArray(c)) t = c.filter((b) => b.type === 'text').map((b) => b.text).join('\n');
+      t = (t || '').trim();
+      if (!t) continue;                             // tool_result-only event
+      if (/^</.test(t)) continue;                   // <command-name>/<local-command…>/<system-reminder> wrappers
+      if (/^\[Request interrupted/.test(t)) continue;
+      if (/^Stop hook feedback:/.test(t)) {
+        const after = t.split(/HOOK_STOP_OK/).pop().trim();   // human text typed after our echoed rubric
+        if (after) return truncate(after);
+        continue;
+      }
+      return truncate(t);
+    }
+  } catch { /* fail-soft: no injection */ }
+  return null;
+}
+
 const raw = await readStdin();
 let data = {};
 try { data = JSON.parse(raw || '{}'); } catch { /* ignore */ }
@@ -97,7 +150,13 @@ const projectDir = data.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
 // Dormant unless armed for this project.
 if (!fs.existsSync(path.join(projectDir, '.claude', 'keep-going.on'))) process.exit(0);
 
-// Marker-file escape hatch (see header §2): fresh marker = one deliberate stop, then consumed.
+// Defer to genesis's own Stop mechanisms — never fight them (no-ops outside a genesis project).
+//   usage-guard pause in progress → allow the clean halt (the external resumer relaunches later).
+if (fs.existsSync(path.join(projectDir, '.scratch', 'resume.json'))) process.exit(0);
+//   /genesis build in progress → the acceptance Stop gate governs stopping, not us.
+if (fs.existsSync(path.join(projectDir, '.scratch', 'acceptance.json'))) process.exit(0);
+
+// Marker-file escape hatch (see header): fresh marker = one deliberate stop, then consumed.
 const marker = path.join(projectDir, '.claude', 'hook-stop-ok');
 try {
   const st = fs.statSync(marker);
@@ -115,6 +174,7 @@ if (text === null) process.exit(0);
 if (/HOOK_STOP_OK/.test(text)) process.exit(0);
 if (data.transcript_path && tailHasSentinel(data.transcript_path)) process.exit(0);
 
-// Otherwise block the stop and re-inject the rubric so work continues.
-process.stdout.write(JSON.stringify({ decision: 'block', reason: RUBRIC }));
+// Otherwise block the stop and re-inject the rubric (with the latest request echoed) so work continues.
+const request = data.transcript_path ? latestHumanText(data.transcript_path) : null;
+process.stdout.write(JSON.stringify({ decision: 'block', reason: rubric(request) }));
 process.exit(0);

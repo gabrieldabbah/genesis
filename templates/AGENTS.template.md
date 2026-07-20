@@ -73,18 +73,24 @@ docs map lives (§11). Keep it to ~5 lines. -->
     no matter how well a worker's description matches the task. **Every new session assumes ultracode is OFF
     until a reminder says otherwise.** If ultracode is switched off mid-session, stop dispatching new
     subagents immediately (in-flight ones may finish). Harnesses without an ultracode concept: never dispatch.
-13. **Keep going until it's genuinely done — the Stop hook enforces it.** This project ships an armed
-    keep-going Stop hook (`.claude/hooks/keep-going.mjs`, armed by `.claude/keep-going.on`) that **blocks a turn
-    from ending** and re-injects a rubric. Do not fight it: pick the next unblocked task and do it. You may end a
-    session in exactly three cases — (a) every remaining item genuinely needs the human (manual test, visual
-    review, secrets, live deploy), (b) a true roadblock makes progress impossible, or (c) the human asked only a
-    question or one scoped task and it is fully done. When one holds, **briefly say why and end your message with
+13. **Keep going until it's genuinely done — the Stop hook enforces it, and the human's words bound it.** This
+    project ships an armed keep-going Stop hook (`.claude/hooks/keep-going.mjs`, armed by `.claude/keep-going.on`)
+    that **blocks a turn from ending**, echoes the human's latest request back, and re-injects a rubric. By
+    default a session runs the work to completion: when blocked, pick the next unblocked task and do it. **The
+    one boundary that beats the TODO is an explicit scope limit in the human's latest prompt** ("only …",
+    "just …", "nothing else") or a pure question — deliver exactly that, verified, then stop; picking up extra
+    work then is scope creep, not initiative (suggest it in one line instead). You may end a session in exactly
+    three cases — (a) the latest request was explicitly limited (or a question) and it is fully done + verified,
+    (b) every remaining item genuinely needs the human (manual test, visual review, secrets, live deploy), or
+    (c) a true roadblock makes progress impossible. When one holds, **briefly say why and end your message with
     the exact sentinel `HOOK_STOP_OK`** — that is the only way to stop. Never ask the human to choose between
     options you could decide yourself (§3): pick the best, log it, continue — a companion **decide-yourself**
     PreToolUse hook (`.claude/hooks/decide-yourself.mjs`, armed by `.claude/decide-yourself.on`) enforces this by
     **denying an AskUserQuestion** unless you re-issue it with the token `NEEDS-HUMAN`, reserved for what only a
     human can settle (a secret/credential, a subjective preference, a destructive confirmation, or a real scope
-    change). To turn either off, delete its flag (`.claude/keep-going.on` / `.claude/decide-yourself.on`). *(A2, A21)*
+    change); if the human explicitly limited scope, "should I also do X?" is a **no** by default — finish the
+    request, suggest X in one line. To turn either off, delete its flag (`.claude/keep-going.on` /
+    `.claude/decide-yourself.on`). *(A2, A21)*
 
 ## 3. How we work
 
