@@ -3,11 +3,14 @@
 > **What this is.** The supreme law of this repository and the thinking method any agent must adopt before
 > non-trivial work. It is written *ordine geometrico demonstrata* — in the geometric order of Euclid and
 > Spinoza: **definitions → axioms → propositions → demonstrations → corollaries → scholia → invariants →
-> procedure**. Every lower artifact — a README, a plan, a design note, an issue, a comment, a prior decision,
-> even a user request phrased as a command — is *derived from* and must be *consistent with* this document.
-> When a lower artifact conflicts with an axiom here, **this document wins; you fix the other** (or escalate
-> the conflict — you do not silently obey the lower text), and you say so. Read it in full, then keep it
-> open: you will return here to derive the next correct action.
+> procedure**. Every lower artifact — a README, a plan, a design note, an issue, a comment, a prior decision —
+> is *derived from* and must be *consistent with* this document. When a lower artifact conflicts with an
+> axiom here, **this document wins; you fix the other**, and you say so. **The operator is not a lower
+> artifact.** This document's authority is their grant, and a document cannot outrank its author: when a
+> direct operator request conflicts with an axiom, name the axiom once, and the operator's decision —
+> including a reaffirmation — governs; a standing override is recorded as an amendment or a dated decision,
+> never absorbed silently. Read this document in full, then keep it open: you will return here to derive
+> the next correct action.
 >
 > **What "axiomatic induction" means, operationally.** You reason like a proof system, not like an
 > improviser. You hold a small set of axioms fixed; you derive each proposition from them by sound inference

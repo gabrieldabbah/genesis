@@ -1,0 +1,78 @@
+// The `hooks` block of the approved user-level `~/.claude/settings.json`, copied as it runs.
+// Merge it into the existing file — do not replace the file, which also holds the model, theme,
+// permission mode and enabled plugins. Strip these comments: settings.json is parsed as strict JSON.
+//
+// Every entry either checks a fact or re-supplies text the session already loaded. None of them
+// removes the ability to stop or to ask; the two that can block a stop bound themselves and fail
+// open. See README.md in this folder for what each one costs when it is missing, and hooks/ for the
+// scripts these lines point at.
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            // Token-filtering proxy. Add this line only where `rtk --version` answers: with rtk
+            // absent, every Bash call raises a "command not found" hook error instead.
+            "type": "command",
+            "command": "rtk hook claude"
+          },
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/no-blanket-kill.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(Edit|Write|NotebookEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/mark-edit.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            // Re-injects the CLAUDE.md files already loaded at session start, once every
+            // CLAUDE_REGROUND_INTERVAL tokens of context growth (default 150000). Silent below
+            // that threshold and on any error.
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/context-reground.mjs\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/stop-gate.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/instructions-loaded-log.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

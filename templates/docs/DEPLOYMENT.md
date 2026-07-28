@@ -2,13 +2,13 @@
 
 > **This is the handoff.** The AI has done everything it *can* do — built, tested, secured, and prepared
 > the release — and now hands you the things that **only a human may do**: create accounts, mint and place
-> real secrets, push the button on a deploy, point a domain. The overlord **defers these here and keeps
+> real secrets, push the button on a deploy, point a domain. The build **defers these here and keeps
 > building the rest** — it never stops the run mid-flight to ask, and it never deploys, pushes, or mutates a
-> live system on its own (A24). Each item below was queued as a `🙋` task during the build and collected here.
-> Every command below was prepared and dry-run-checked locally first (A14 — prove it locally before any
+> live system on its own. Each item below was queued as a `🙋` task during the build and collected here.
+> Every command below was prepared and dry-run-checked locally first (prove it locally before any
 > remote call); your job is to supply credentials and authorize the irreversible steps.
 >
-> **Read first:** the secret rule in [`AGENTS.md`](../AGENTS.md) §6 — never commit, log, paste, or print a
+> **Read first:** the secret rule in [`CLAUDE.md`](../CLAUDE.md) §Secrets — never commit, log, paste, or print a
 > secret value; `.env.example` documents **names**, never values. This doc references key **names** only.
 
 ---
@@ -22,7 +22,7 @@ Work top to bottom; each box is a thing the AI cannot do for you. Do not skip a 
   store. (The AI wrote the names into `.env.example`; you fill the values — never in git.)
 - [ ] **Database** — provision the database, then run migrations + seed (§4) against it once.
 - [ ] **First deploy** — run the per-host deploy (§3) to a **staging/preview** target first; authorize it.
-- [ ] **Smoke checks** — run §5 against the deployed URL and read real output (A2) — green before promoting.
+- [ ] **Smoke checks** — run §5 against the deployed URL and read real output — green before promoting.
 - [ ] **Domain & DNS** — point the domain and verify TLS (§6) *(can wait until staging is proven)*.
 - [ ] **Promote to production** — only after staging is green; this is the second, explicit gate.
 - [ ] **Know the rollback** — read §7 *before* you need it; confirm you can execute it.
@@ -43,9 +43,9 @@ Work top to bottom; each box is a thing the AI cannot do for you. Do not skip a 
 | A **git remote** you can push to | source of truth + CI | `{{REMOTE_URL}}` — pushing is a human gate |
 | Each integration's account | features (payments, auth, mail, …) | one per selected `integrations/registry/*.yaml`; see §2 |
 
-- **Authenticate the CLI yourself** (`{{HOST_LOGIN_CMD}}`). The sandbox treats the host CLI as
-  network-touching and outward-mutating; the AI does not log in as you or hold your session.
-- If the host CLI is **sandbox-unfriendly** (most are — see the integration's `sandbox_unfriendly_cli`
+- **Authenticate the CLI yourself** (`{{HOST_LOGIN_CMD}}`). Logging in is outward-facing and uses your
+  identity; the AI does not log in as you or hold your session.
+- If a sandbox is enabled and the host CLI is **sandbox-unfriendly** (most are — see `sandbox_unfriendly_cli`
   flag), you run it in your normal shell; the AI prepares the exact arguments.
 
 ## 2. Secrets & environment — names only, you supply values
@@ -75,7 +75,7 @@ uuidgen
 ```
 
 - **Place, don't print.** Pipe or paste into the secret store; do not `echo` the value into your shell
-  history. To confirm a value is *set* (never its content): `[ -n "$SOME_KEY" ] && echo set` (A13).
+  history. To confirm a value is *set* (never its content): `[ -n "$SOME_KEY" ] && echo set`.
 - **Scope every token to least privilege** — a deploy token deploys, it does not own the account
   (`token-scope-least-privilege` is in each hosting integration's `security` list).
 - **Rotate** anything that ever touched a log, a screen-share, or a paste buffer. Rotation is cheap; a leaked
@@ -93,8 +93,8 @@ a **human gate**: the AI prepares; you authorize and run the production step.
 **Generic flow (any host):**
 
 ```bash
-# 0. on `dev`, gate green (the AI did this): test-gate → /git-commit
-# 1. build the release artifact locally and confirm it (A14)
+# 0. on `dev`, gate green (the AI did this): test-gate, then commit
+# 1. build the release artifact locally and confirm it
 {{BUILD_CMD}}
 # 2. deploy to a STAGING / PREVIEW target first — never straight to prod
 {{DEPLOY_STAGING_CMD}}
@@ -113,7 +113,7 @@ a **human gate**: the AI prepares; you authorize and run the production step.
   env files. Verify: *a deploy to a staging app returns a healthy URL.*
 
 > [!NOTE]
-> If the host CLI is sandbox-unfriendly, run the deploy in your own shell. The AI gives you the exact command
+> Run the deploy in your own shell. The AI gives you the exact command
 > and arguments; it does not execute the outward-facing deploy itself.
 
 ## 4. Database — migration & seed
@@ -124,7 +124,7 @@ treat a destructive migration as its own gated task in [`PLAN.md`](./PLAN.md).
 ```bash
 # point at the TARGET database (staging first), via its connection-string NAME, not an inline secret
 export {{DB_URL_KEY}}=...        # from the host secret store / your password manager — not committed
-{{MIGRATE_CMD}}                  # apply schema migrations (idempotent — safe to re-run; A9)
+{{MIGRATE_CMD}}                  # apply schema migrations (idempotent — safe to re-run)
 {{SEED_CMD}}                     # seed reference/lookup data ONLY — never seed prod with test fixtures
 ```
 
@@ -136,7 +136,7 @@ export {{DB_URL_KEY}}=...        # from the host secret store / your password ma
 
 ## 5. Post-deploy smoke checks
 
-The deploy is **not done until observed green** (A2). Run these against the **deployed URL**, read the real
+The deploy is **not done until observed green**. Run these against the **deployed URL**, read the real
 output, and only then promote or call it live.
 
 ```bash
@@ -191,7 +191,7 @@ release**, not a hotfix forward.
 - **Rollback is also a human gate** — it mutates a live system. The AI can prepare the exact command; you run
   it.
 - After any rollback, write the cause + fix into [`DECISIONS.md`](./DECISIONS.md) and add a **regression
-  test** (red first) before re-deploying (P9, `TESTING.md` §2).
+  test** (red first) before re-deploying (see `TESTING.md` §2).
 
 ---
 

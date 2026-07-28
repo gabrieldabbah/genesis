@@ -7,9 +7,10 @@ variable *names* are documented; real values never live in the repo.
 
 > [!IMPORTANT]
 > **🔒 Never read, `cat`, print, or echo `.env` (or any `.env.*` with real values).** Per
-> [`AGENTS.template.md`](../AGENTS.template.md) §6, to check a value only test presence
+> [`CLAUDE.template.md`](../CLAUDE.template.md) §Secrets, to check a value only test presence
 > (`[ -n "$VAR" ] && echo set`), never the value. Only application code loads `.env`, at runtime, and must
-> never log a secret. The sandbox enforces this at both the Bash and Read-tool layers.
+> never log a secret. `.claude/settings.json` denies these paths to the Read tool; from a shell command it is
+> a rule you follow, not a boundary, unless this project enabled an OS sandbox.
 
 ## The files
 
@@ -51,6 +52,10 @@ Run the command and paste the output into your **local** file (never the committ
 | `JWT_SECRET` | `openssl rand -hex 32` | alt: `head -c 32 /dev/urandom \| base64` |
 | `ENCRYPTION_KEY` | `openssl rand -base64 32` | must decode to 32 bytes for AES-256 |
 | `NEXTAUTH_SECRET` | `openssl rand -base64 32` | Next.js / next-auth only — delete if unused |
+
+Without `openssl` on the path — a Windows shell that is not Git Bash — Node produces the same bytes:
+`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` for the hex forms, `'base64'` for
+the others. What matters is 32 bytes from a cryptographic source, not which binary emitted them.
 
 Rules: **development and production secrets must be different** (never copy a dev secret to prod); generate a
 production secret **once**, store it in the platform's secret manager, and **rotate** it on any suspected

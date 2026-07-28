@@ -1,10 +1,13 @@
 # {{PROJECT_NAME}} — Completed TODO (archive)
 
-> Items that are **done AND verified**, moved here from [`TODO.md`](./TODO.md) under the date they were moved.
-> This is the audit trail of what actually shipped/landed. Newest dates on top.
+> Completed **sections**, moved here whole from [`TODO.md`](./TODO.md) under the date they were moved. This is
+> the audit trail of what actually landed. Newest dates on top.
 >
-> Move rule: an item only arrives here once its `→ verify:` passed (🤖 auto) or its owner signed off (🙋). Keep
-> the original description + the verification evidence (the command that passed, the PR, or who verified).
+> A section arrives here only when it holds no open items and every item's `→ verify:` has passed (🤖) or its
+> owner has signed off (🙋). Keep the original descriptions and the evidence — the command that passed, the PR,
+> or who verified.
+>
+> After moving a section, grep for its title: index lines elsewhere that pointed into it now dangle.
 
 ---
 

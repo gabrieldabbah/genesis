@@ -1,0 +1,61 @@
+name: gate
+
+# The repository's own definition of done, from CLAUDE.md, on every change that could break it.
+# The logic lives in scripts/gate.sh so the local check and the CI check cannot drift apart.
+
+on:
+  pull_request:
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run the gate
+        run: bash scripts/gate.sh
+
+      - name: The archive hook blocks a completed section, and only once
+        run: |
+          # The hook's block path is the half that never runs during the gate's inert check.
+          work=$(mktemp -d); mkdir -p "$work/.claude"
+          printf '# TODO\n\n## Shipped\n\n- [x] a\n- [x] b\n\n## Open\n\n- [ ] c\n' > "$work/TODO.md"
+          : > "$work/TODO-COMPLETED.md"
+          first=$(echo "{\"cwd\":\"$work\"}"  | node templates/todo-archive-reminder.mjs)
+          second=$(echo "{\"cwd\":\"$work\"}" | node templates/todo-archive-reminder.mjs)
+          active=$(echo "{\"cwd\":\"$work\",\"stop_hook_active\":true}" | node templates/todo-archive-reminder.mjs)
+          echo "$first" | grep -q '"decision":"block"' || { echo "expected a block on the first call"; exit 1; }
+          echo "$first" | grep -q 'Shipped'            || { echo "expected the completed section named"; exit 1; }
+          test -z "$second" || { echo "expected silence on the repeat — loop safety is broken"; exit 1; }
+          test -z "$active" || { echo "expected silence when stop_hook_active"; exit 1; }
+          echo "block once, then allow, and silent under stop_hook_active"
+
+      - name: The acceptance hook blocks while criteria are unmet, and not once they are met
+        run: |
+          # The other half the gate's inert check never reaches. It is the only executable genesis
+          # registers on an installer's machine, so both of its paths are exercised here.
+          work=$(mktemp -d); mkdir -p "$work/.scratch"
+          printf '{"criteria_met":false,"iteration":3,"max_iterations":50,"open":["item-7 red"]}' \
+            > "$work/.scratch/acceptance.json"
+          unmet=$(echo "{\"cwd\":\"$work\"}" | node hooks/stop-acceptance.mjs)
+          printf '{"criteria_met":true,"iteration":3,"max_iterations":50}' > "$work/.scratch/acceptance.json"
+          met=$(echo "{\"cwd\":\"$work\"}" | node hooks/stop-acceptance.mjs)
+          printf 'not json'  > "$work/.scratch/acceptance.json"
+          broken=$(echo "{\"cwd\":\"$work\"}" | node hooks/stop-acceptance.mjs)
+          echo "$unmet" | grep -q '"decision":"block"' || { echo "expected a block while criteria unmet"; exit 1; }
+          echo "$unmet" | grep -q 'item-7 red'         || { echo "expected the open items named"; exit 1; }
+          test -z "$met"    || { echo "expected silence once criteria_met is true"; exit 1; }
+          test -z "$broken" || { echo "expected silence on unparseable JSON — fail-open is broken"; exit 1; }
+          echo "blocks while unmet, allows when met, fails open on corruption"
+
+      - name: The two shipped copies of the archive hook are identical
+        run: diff .claude/hooks/todo-archive-reminder.mjs templates/todo-archive-reminder.mjs

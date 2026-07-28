@@ -9,4 +9,4 @@ fallbacks: [google-gemini]        # fail over to these (resilience — see templ
 security: [api-key-server-only, spend-limit-set, no-pii-to-provider-without-consent, prompt-injection-aware]
 docs_source: https://platform.openai.com/docs
 verify: "a small image/text generation call returns successfully and is logged with cost"
-notes: "consumed by the media-gen skill; set a billing spend limit"
+notes: "billed by the provider, not by the Claude plan — set a spend limit before the first call"

@@ -11,14 +11,13 @@
 
 ## Conventions
 
-- **Canonical agent file:** `AGENTS.md` (root). `CLAUDE.md` is a symlink to it; `.gemini/settings.json`
-  points Gemini at it.
-- **Skills:** canonical in `.agents/skills/` (tracked), symlinked to `.claude/skills/`. External skills
-  pinned in `skills-lock.json`.
-- **Docs:** all project docs in `docs/`; the map is in [`AGENTS.md`](../AGENTS.md) §11.
+- **Priming file:** `CLAUDE.md` at the root, a real file — no symlink, no import.
+- **Skills:** `.claude/skills/`, one directory. Copies under other tools' trees are not loaded by Claude Code
+  and should not exist.
+- **Docs:** all project docs in `docs/`; the map is at the end of [`CLAUDE.md`](../CLAUDE.md).
 - **Generated artifacts** are git-ignored and regenerable; source material is tracked.
 - **Scratch:** `.scratch/` is a git-ignored local space (only its `README.md` is tracked) for ephemeral
-  scripts, scratch data, and the operator's own to-do scraps. Durable tasks live in `docs/PLAN.md`.
+  scripts, scratch data, and the operator's own to-do scraps. Durable tasks live in `docs/TODO.md`.
 - **Secrets** live only in `.env` (gitignored); `.env.example` documents names, never values.
 
 ## Per-folder READMEs

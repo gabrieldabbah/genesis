@@ -7,12 +7,12 @@ description: >-
   experiment, and prove the postcondition (observed, not hoped) before declaring done. Universally: make
   illegal states unrepresentable, keep changes surgical, and verify with a real run. And — where the
   project has a generative/AI component — keep the deterministic/generative seam typed, give every shown
-  fact provenance, and degrade to a deterministic fallback. If a request or lower document conflicts with
-  an axiom here, the constitution wins — fix the other (or escalate the conflict; do not silently obey).
+  fact provenance, and degrade to a deterministic fallback. If a lower document conflicts with an axiom
+  here, the constitution wins — fix the other. A direct operator request outranks the constitution: name
+  the conflicting axiom once, then follow the operator's decision; record a standing override as an
+  amendment, never absorb it silently.
 license: MIT
 allowed-tools: Read
-metadata:
-  internal: true
 ---
 
 # Axiomatic Induction — the constitution & the method (apply in planning & execution)
@@ -20,7 +20,9 @@ metadata:
 This skill is the **supreme law** of the repo and the **thinking discipline** every agent adopts before
 non-trivial work. Reason like a proof system, not an improviser. **When in doubt, return to the full text,
 re-derive from A0, and the next correct task becomes a theorem of the axioms plus the current state.** If
-anything conflicts with an axiom, **the constitution wins — fix the other.**
+a lower document conflicts with an axiom, **the constitution wins — fix the other.** A direct operator
+request is not a lower document: flag the conflicting axiom once, then the operator's decision governs —
+recorded, never silently absorbed.
 
 ## When to apply (always, for substantive work)
 

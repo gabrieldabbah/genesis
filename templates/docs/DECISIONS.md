@@ -1,15 +1,18 @@
 # {{PROJECT_NAME}} — Decisions
 
-> The decision log (A5). Every scope-bifurcating choice is recorded here with a one-line rationale, so
-> we never re-litigate it. Open **paramount gates** awaiting a human go at the bottom.
+> The decision log. Every scope-bifurcating choice is recorded here with the reason it was taken, so it is
+> not re-litigated — and so it can be re-evaluated later against that reason rather than against who asked.
+> Record the reason, never the person. Open gates awaiting a human are at the bottom.
 >
 > Format: `Dn — <decision>` · *Why:* one line · *Date:* YYYY-MM-DD.
 
 ## Decisions taken
 
-- **D1 — Adopt the AI-dev kit scaffold (constitution + `AGENTS.md` canonical + `CLAUDE.md` symlink +
-  `.gemini/settings.json` + superpowers/generate-pr/git-commit skills).** *Why:* one proven, multi-agent
-  operating substrate for every project. *Date:* {{BOOTSTRAP_DATE}}.
+- **D1 — Scaffolded with genesis: `CLAUDE.md` as the priming file, the docs skeleton, secret paths denied to
+  the Read tool, and a human gate on push and deploy.** *Why:* one substrate for every project, so what is true
+  of the repository is stated once, in a place every session loads. No OS sandbox: one strict enough to matter
+  also blocks dependency installs, and a control that blocks ordinary work gets switched off.
+  *Date:* {{BOOTSTRAP_DATE}}.
 
 <!-- Add decisions as they are made. Newest at the bottom. -->
 

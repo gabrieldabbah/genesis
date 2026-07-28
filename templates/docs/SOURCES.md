@@ -4,10 +4,10 @@
 > databases, package registries, reference implementations, and the **approved dependencies & tools** — plus
 > the ones to **avoid**. When the operator asks to *search* for something or *add a dependency/tool*, the AI
 > consults **this file first** and prefers these sources; anything pulled from outside it is a **conjecture**
-> (D8/A3) until corroborated here, and **nothing shown to a user gets cited without a verified origin** (A15).
+> until corroborated here, and **nothing shown to a user gets cited without a verified origin**.
 >
-> This operationalizes three axioms at *selection* time: **provenance or it doesn't exist** (A15), **trust
-> over polish** (A20), and **follow the reference, then surpass it** (A19) — and it extends the
+> Three rules, applied at the moment of *choosing* rather than after: **provenance or it doesn't exist**,
+> **trust over polish**, and **find the best that exists, then meet or beat it** — extending the
 > [`MAINTENANCE.md`](./MAINTENANCE.md) "check both ends" policy from *update*-time to *choosing*-time.
 > Maintained by the **`sources`** skill; the dependency-vetting checklist below is the gate for adding anything.
 
@@ -16,18 +16,18 @@
 ## 1. The rule — trusted-first, grounded, conjecture-flagged
 
 1. **Search the trusted registry (§3) before the open web.** Primary/official sources outrank everything.
-2. **Ground every shown fact in a verified origin (A15/D6).** A number, API signature, version, or claim that
+2. **Ground every shown fact in a verified origin.** A number, API signature, version, or claim that
    cannot be traced to a source in §3 (or freshly verified and *added* to it) is **dropped, not shown** —
    `origin(fact) = None ⇒ fact ∉ output`. Better no citation than a wrong one.
-3. **Mark un-corroborated material a conjecture (A3/D8).** Anything from a Tier-3 / unlisted source is a
+3. **Mark un-corroborated material a conjecture.** Anything from a Tier-3 / unlisted source is a
    hypothesis with an attached check, never asserted as fact.
 4. **Never invent a source, version, stat, or citation.** A fabricated provenance is the one unrecoverable
-   error (A20). If you can't find it in a trusted source, say so.
+   error. If you can't find it in a trusted source, say so.
 
 ## 2. Search protocol — when the operator says "search for X"
 
 1. Identify the domain (language/framework/security/standard) and go to its **Tier-1** source in §3 first.
-2. Pin to the **project's versions** (read the lockfile / `AGENTS.md` §1 stack) — docs for the wrong major
+2. Pin to the **project's versions** (read the lockfile and the stack line at the top of `CLAUDE.md`) — docs for the wrong major
    version are a silent trap.
 3. Corroborate any Tier-2/3 finding against a Tier-1 source before relying on it; cite the origin inline.
 4. If the answer matters and isn't in §3, do a wider search, **then record the new trusted source back into
@@ -46,13 +46,13 @@
 | Framework | `{{FRAMEWORK_DOCS}}` | the official framework docs, matching the installed major |
 | Package registry | `{{PKG_REGISTRY}}` | the canonical registry (npm / PyPI / crates.io / pkg.go.dev) — read the package's own repo + docs |
 | Standards | `{{STANDARDS}}` | the relevant spec (MDN/WHATWG/IETF RFC/W3C/ECMA/POSIX), the normative text |
-| This project | the repo itself + `docs/` | `AGENTS.md`, `ARCHITECTURE.md`, the source — the ground truth for *our* contracts |
+| This project | the repo itself + `docs/` | `CLAUDE.md`, `ARCHITECTURE.md`, the source — the ground truth for *our* contracts |
 
 ### Tier 2 — vetted secondary (reliable, still corroborate versions)
 | Domain | Source |
 |---|---|
 | Security advisories | GitHub Advisory Database · OSV.dev · the NVD/CVE list · the ecosystem's audit (`{{AUDIT_CMD}}`) |
-| Reference / style | `{{STYLE_GUIDE}}` · the framework's official examples · a named reference implementation (A19) |
+| Reference / style | `{{STYLE_GUIDE}}` · the framework's official examples · a named reference implementation |
 | API / models | the **`claude-api`** skill for Claude/Anthropic model ids, params, pricing — never guess these |
 | Maintainer channels | official release notes, changelogs, the project's own blog/GitHub releases |
 
@@ -65,11 +65,11 @@
 - **Typosquatted / look-alike packages** (a name one character off a popular package), packages with no
   repo / no recent releases / a single anonymous maintainer, "helpful" forks of popular libs. A package is
   not trusted because a search surfaced it — it earns trust via §4.
-- Anything that can't be traced to a real origin. Unverifiable ⇒ not shown (A15).
+- Anything that can't be traced to a real origin. Unverifiable ⇒ not shown.
 
 ## 4. Dependencies & tools — the vetting checklist + the approved list
 
-**Adding any dependency or tool runs this checklist first (the selection-time gate — A20/A11):**
+**Adding any dependency or tool runs this checklist first — the gate at selection time:**
 
 - [ ] **Real & canonical** — it is the genuine package (exact name, official repo), not a typosquat/look-alike.
 - [ ] **Maintained** — recent releases + commits, responsive issues, more than a lone anonymous maintainer.
@@ -77,7 +77,7 @@
 - [ ] **Advisory-clean (both ends)** — the version you'd add carries no known advisory (GitHub Advisory / OSV
   / `{{AUDIT_CMD}}`) and isn't yanked/deprecated. Re-check at update time too.
 - [ ] **License-compatible** — its license is compatible with this project's (`{{LICENSE}}`); copyleft noted.
-- [ ] **Earns its weight (A11)** — it does something we genuinely shouldn't build; supply-chain/bundle cost is
+- [ ] **Earns its weight* — it does something we genuinely shouldn't build; supply-chain/bundle cost is
   justified. Prefer the standard library or an already-present dep when it suffices.
 - [ ] **Recorded** — the choice + rationale goes in [`DECISIONS.md`](./DECISIONS.md) and the row below.
 
@@ -91,7 +91,7 @@
 |---|---|---|
 | `{{TOOL}}` | `{{TOOL_USE}}` | `{{TOOL_SOURCE}}` |
 
-### Rejected / avoid (so the decision isn't re-litigated — A5)
+### Rejected / avoid (so the decision isn't re-litigated)
 | Candidate | Why rejected |
 |---|---|
 | `{{REJECTED}}` | `{{REJECT_REASON}}` |
@@ -109,6 +109,6 @@
 
 When a search surfaces a genuinely trustworthy source not listed here, **add it** (with one line on why it's
 trusted and which tier). When a once-trusted source goes stale, unmaintained, or wrong, **demote or remove
-it** — a wrong entry here is a silent trap (A25). Review on the MAINTENANCE cadence.
+it** — a wrong entry here is a silent trap. Review on the MAINTENANCE cadence.
 
 > Resolve every `{{...}}` at bootstrap to the real stack; then `grep -rn "{{" .` must be empty.

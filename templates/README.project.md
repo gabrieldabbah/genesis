@@ -52,7 +52,7 @@ the verb; one line each. -->
 
 > [!IMPORTANT]
 > Requires {{RUNTIME_AND_VERSION}}{{EXTRA_PREREQS}}. The exact, canonical commands live in
-> [`AGENTS.md`](./AGENTS.md) §5 — keep this section in step with it.
+> [`CLAUDE.md`](./CLAUDE.md) §Commands — keep this section in step with it.
 
 **1. Install**
 
@@ -79,7 +79,7 @@ You should see {{EXPECTED_FIRST_OUTPUT}}.
 
 Configuration is read from the environment. **Secrets never live in this file or in git** — copy
 [`.env.example`](./.env.example) to `.env` (git-ignored) and fill values locally; `.env.example` documents the
-variable **names** only. See [`AGENTS.md`](./AGENTS.md) §6 for the secret-handling rule.
+variable **names** only. See [`CLAUDE.md`](./CLAUDE.md) §Secrets for the rule.
 
 | Variable | Required | Default | Purpose |
 |---|:---:|---|---|
@@ -149,20 +149,20 @@ outward-facing or mutating step — is in [`docs/DEPLOYMENT.md`](./docs/DEPLOYME
 ## Project layout
 
 <!-- FILL: a tree to depth 2, one comment per folder. Every folder down to the second level has its own
-README.md (what lives here + why) — that depth-2 README rule is mandatory and checked. -->
+README.md (what lives here + why); a folder without one is not done, and the audit command checks it. -->
 
 ```
 {{REPO_TREE}}
 ```
 
-The full operating manual for both humans and AI agents is [`AGENTS.md`](./AGENTS.md); the document map is its
-§11.
+The full operating manual for both humans and AI agents is [`CLAUDE.md`](./CLAUDE.md); the document map is its
+§Documents section.
 
 ## Contributing
 
 Contributions are welcome. Before opening a PR:
 
-1. Read [`AGENTS.md`](./AGENTS.md) — the conventions, the golden rules, and the workflow.
+1. Read [`CLAUDE.md`](./CLAUDE.md) — what this is, who is exposed, the gate, and the conventions.
 2. Work on `dev`; keep changes small and surgical; match the surrounding style.
 3. Make the gate green: `{{TEST_CMD}}` must pass (the `test-gate` skill enforces it).
 4. Use Conventional Commits; open the PR against `dev`.

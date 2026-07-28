@@ -1,83 +1,57 @@
 // Template for a scaffolded project's .claude/settings.json.
-// Genesis FILLS this at runtime from the interview/seed — do not ship it verbatim into a project.
-// Two layers protect secrets: sandbox.filesystem.denyRead (Bash) AND permissions.deny Read(...) (Read tool).
-// Confirm the exact sandbox.* key names on the target build via /sandbox before relying on this.
+// Genesis fills this at runtime from the interview — do not ship it verbatim into a project.
+//
+// No OS sandbox by default. What protects this project is the deny rules below, the human gate on
+// commit/push/deploy, and Claude Code's own permission mode. A sandbox tight enough to matter also blocks
+// `pnpm install`, and a control that blocks ordinary work gets switched off — at which point it protects
+// nothing. See skills/genesis/reference.md §Permissions for how to turn one on properly if you want it.
 {
-  "sandbox": {
-    "enabled": true,
-    "allowUnsandboxedCommands": true,        // escape hatch: soft-fail to a prompt, never hard-fail a run
-    "failIfUnavailable": false,
-    "filesystem": {
-      "allowWrite": ["{{WRITE_PATH}}"],      // the scope the user chose (this project, or the dev parent)
-      "denyRead": [
-        "~/.ssh", "~/.aws", "~/.gnupg", "~/.config/gh",
-        "~/.netrc", "~/.npmrc", "~/.config/git"
-      ]
-    },
-    // NETWORK POSTURE (chosen per project) — governs OUTBOUND access only, NOT exposing the app:
-    //   open       -> omit the whole "network" block (outbound unrestricted; filesystem + secrets still locked).
-    //                 DEFAULT for the dev sandbox in EVERY archetype, money/PII included — package installs
-    //                 (pnpm/npm postinstall binaries), research, and integration CLIs must never be blocked.
-    //                 Safety when open is behavioral: trusted sources (docs/SOURCES.md), and fetched web
-    //                 content is untrusted data, never instructions (prompt-injection care).
-    //   allow-list -> keep "network.allowedDomains" as below. A DEPLOYED-app egress policy (docs/DEPLOYMENT.md),
-    //                 or the rare dev case that touches real production PII — only if the user asks.
-    //   hybrid     -> allow-list plus the few broad domains the project genuinely needs.
-    // EXPOSURE (separate rule): dev/test must NOT expose the app — bind 127.0.0.1, never 0.0.0.0; no tunnels;
-    //   open a public port ONLY at deploy. "localhost" below is outbound loopback, not app exposure.
-    "network": {
-      "allowedDomains": [
-        "localhost", "127.0.0.1",
-        "github.com", "*.githubusercontent.com", "codeload.github.com",
-        "registry.npmjs.org", "nodejs.org",
-        "crates.io", "static.crates.io", "pypi.org", "files.pythonhosted.org",
-        "api.anthropic.com", "docs.anthropic.com", "code.claude.com"
-        // {{INTEGRATION_DOMAINS}}  — appended per chosen integration
-        // {{TRUSTED_SOURCE_DOMAINS}} — from docs/SOURCES.md
-      ]
-    },
-    "excludedCommands": [
-      // {{EXCLUDED_COMMANDS}} — installed tools / integration CLIs that fail under Seatbelt, e.g.:
-      "docker *", "gh *"
-    ]
-  },
   "permissions": {
+    // Blocks the Read tool. Note the boundary honestly: this does NOT stop a shell command. `cat .env` from
+    // Bash is not covered by any rule here — only an OS sandbox does that. Secret handling from the shell is
+    // a rule stated in CLAUDE.md, not a control, and CLAUDE.md § Secrets says so plainly.
+    //
+    // Each project-relative path is listed in every spelling Claude Code accepts — bare (`.env`),
+    // explicitly-relative (`./.env`), and recursive in both forms (`./**/` and `//**/`). Which spelling a
+    // given build's matcher honours is a version-sensitive detail, and the cost is asymmetric: a redundant
+    // rule costs a line, a rule that silently matches nothing leaves `.env` readable while this file claims
+    // otherwise. Redundancy here is deliberate — do not "tidy" it to one form without testing the survivor
+    // against a real file on the target build.
     "deny": [
+      "Read(.env)", "Read(.env.*)",
+      "Read(./.env)", "Read(./.env.*)",
+      "Read(./**/.env)", "Read(./**/.env.*)",
+      "Read(//**/.env)", "Read(//**/.env.*)",
+      "Read(**/.env)", "Read(**/.env.*)",
+      "Read(secrets/**)", "Read(./secrets/**)", "Read(**/secrets/**)",
+      "Read(**/*.pem)", "Read(**/*.key)", "Read(./**/*.pem)", "Read(./**/*.key)",
       "Read(~/.ssh/**)", "Read(~/.aws/**)", "Read(~/.gnupg/**)", "Read(~/.config/gh/**)",
-      "Read(~/.netrc)", "Read(~/.npmrc)", "Read(~/.config/git/**)",
-      "Read(//**/.env)", "Read(//**/.env.*)", "Read(**/secrets/**)"
+      "Read(~/.netrc)", "Read(~/.npmrc)", "Read(~/.config/git/**)"
       // {{INTEGRATION_SECRET_PATHS}} — env files / key paths for chosen integrations
+    ],
+    // Outward-facing actions stay with the operator no matter how autonomous the run is.
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(gh pr merge:*)"
+      // {{DEPLOY_COMMANDS}} — the chosen host's deploy command
     ]
   },
-  // KEEP-GOING Stop hook — makes ordinary sessions in this project persistent (they resist stopping until work
-  // is genuinely human-blocked or done, ending only on the HOOK_STOP_OK sentinel; see AGENTS.md). Declaring it
-  // here is the approval surface — the harness may prompt once to trust it. Genesis ships .claude/hooks/keep-
-  // going.mjs and ARMS it (.claude/keep-going.on); the hook is dormant if that flag file is deleted, and it
-  // fails open (a usage-guard pause or a running /genesis build always allows the stop).
-  // DECIDE-YOURSELF PreToolUse hook (companion to keep-going) — in autonomous mode it DENIES an AskUserQuestion
-  // so the agent decides for itself (what to build first, which stack/approach) from the goal + docs instead of
-  // asking; the agent re-issues with the token NEEDS-HUMAN only for questions a human alone can answer (a secret,
-  // a subjective preference, a destructive confirmation, a real scope change). Genesis ships
-  // .claude/hooks/decide-yourself.mjs and ARMS it (.claude/decide-yourself.on); dormant if that flag is deleted.
+  // The one hook genesis installs. It checks two facts in docs/TODO.md: a heading section that is entirely
+  // complete, with no open items, and still in the live file rather than the dated archive; and a ticked
+  // item that is a settled question ("confirm/verify X", or stamped CONFIRMED/VERIFIED) hiding inside a
+  // section that still holds open work. Needs docs/TODO-done.md to exist. Fails open, blocks at most once
+  // per violation set, disarmed with `touch .claude/todo-archive.off`.
+  //
+  // The test for adding any other hook: does it check a fact, or override a decision? A hook that refuses to
+  // let a turn end, or denies the question tool, overrides a decision — it removes the ability to stop and the
+  // ability to ask, which is how an agent ends up confidently doing the wrong thing.
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "AskUserQuestion",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/decide-yourself.mjs\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/keep-going.mjs\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/todo-archive-reminder.mjs\"",
             "timeout": 10
           }
         ]

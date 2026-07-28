@@ -1,7 +1,7 @@
 <!--
-Genesis PR template. The `generate-pr` skill fills every applicable section from the branch diff + commits,
-grounded ONLY in evidence (constitution A2/A15), and strips this comment. An unchecked box beats a fabricated
-tick. Delete a section only if it genuinely does not apply.
+Genesis PR template. The `generate-pr` skill fills every applicable section from the branch diff and
+commits, grounded only in evidence, and strips this comment. An unchecked box beats a fabricated tick.
+Delete a section only if it genuinely does not apply.
 -->
 
 ## Summary
@@ -38,24 +38,24 @@ tick. Delete a section only if it genuinely does not apply.
 
 ## Motivation & context
 
-<!-- Why now. Link the axioms / decisions / plan tasks / issues this discharges (A#, D#, plan T#, #issue).
-Write n/a if there are none — never invent a ref. -->
+<!-- Why now. Link the decisions, plan tasks or issues this discharges (D#, T#, #issue). Write n/a if there
+are none — never invent a ref. -->
 
 ## How it was verified
 
-<!-- Honest: the commands you actually ran and their real result (A2). If you did not run something,
-say which commands a reviewer should run. Paste the real output below. -->
+<!-- The commands you actually ran and what they printed. If you did not run something, say which commands
+a reviewer should run. Paste the real output below. -->
 
 ## Definition of Done
 
-- [ ] Postcondition specified and its check was **run and read** (A2)
-- [ ] Correct on empty / boundary / malformed / adversarial inputs — not just the happy path
-- [ ] Tests added/updated and seen **red before green** (P9)
-- [ ] Reproducible — no ambient clock / random / IO in core logic (A7/A10)
-- [ ] No secrets / PII in the diff (A13)
-- [ ] Simplest change that satisfies the goal; surgical diff (A11/A12)
+- [ ] The gate was run and its output read
+- [ ] Correct on empty, boundary, malformed and adversarial inputs — not only the happy path
+- [ ] Tests added or updated, and seen red before green
+- [ ] Reproducible — no ambient clock, randomness or IO in core logic
+- [ ] No secrets or PII in the diff
+- [ ] Simplest change that satisfies the goal; surgical diff
 - [ ] READMEs current to depth 2 where folders changed
-- [ ] Conventional commits + `Co-Authored-By` trailer; targets `dev` (A24)
+- [ ] Conventional commits with the `Co-Authored-By` trailer; targets the work branch
 
 ## Human sign-off
 
