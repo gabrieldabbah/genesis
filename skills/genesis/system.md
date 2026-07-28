@@ -3,9 +3,14 @@
 The runbook behind [`SKILL.md`](SKILL.md) §system. Every genesis run opens with §Survey; `/genesis system`
 runs the whole file and stops.
 
-**This mode reads, reports and proposes. It does not change anything outside the project without being asked.**
-The home directory is the user's, the changes affect every repository they open, and several of them are hard
-to notice going wrong. Present findings, propose the edit, wait.
+**Read everything, then ask once.** The home directory is the user's, so nothing outside the project changes
+until they say go. But it is *one* question — "here is what is wrong and what I will change; proceed?" — asked
+after the reading is done, and answered yes or no.
+
+**It is never a menu.** Do not ask which parts of the standard to apply, do not present a lettered table of
+sections, and do not ask the user to choose between behaviours defined in [`standard.md`](standard.md). They
+invoked genesis; that is the request for the standard. Deciding what the standard contains is this plugin's
+job, not a question to hand back. A user who wanted to assemble it themselves would not need the plugin.
 
 ## Why it runs first
 
@@ -39,8 +44,11 @@ of the lines above parse. Establish which one you are in from the session's own 
 empty result as a finding — `Get-Content`, `Get-ChildItem` and `$env:USERPROFILE\.claude\` are the equivalents,
 and an error message is not the same fact as an absent file.
 
-Report six things, each with what it costs rather than a score. Then the tooling check in §Tooling, briefly.
-Never install anything yourself — report and recommend.
+Check all six things below plus §Tooling. **Report only what is actually wrong.** A check that came back clean
+is one clause in a summary line, not a paragraph — "settings, plugins and the other config trees are fine"
+closes four of them. Nobody needs a written account of the things that were already correct.
+
+Never install anything yourself before the confirmation in §Report and confirm.
 
 **1. Is there a user-level `CLAUDE.md` at all, and what is in it?**
 
@@ -163,12 +171,22 @@ communication · how conflicting instructions resolve · the bar where a server 
 everywhere else · what must never appear in an artifact · TODO discipline · build order.
 
 [`../../templates/user-layer/CLAUDE.user.md`](../../templates/user-layer/CLAUDE.user.md) is that shape written
-out — the approved layer this standard was derived from, kept verbatim apart from the two machine-specific
-removals its header names. Read it as a source of sections to propose, not a file to install: where the user's
-existing file already says something in their own words and says it well, theirs wins, and where it assumes a
-setup the user does not have, [`../../templates/user-layer/README.md`](../../templates/user-layer/README.md)
-§What the copy assumes says which sections those are. Anything from it that survives into their file is a
-section they accepted, one at a time, per §Proposing the changes below.
+out — the approved layer this standard was derived from, kept verbatim apart from the machine-specific removals
+its header names. **That file is what gets installed**, merged with what the user already has, on the single
+confirmation in §Report and confirm. Two rules govern the merge, and neither is a question for the user:
+
+- **Where their file already says something in their own words and says it well, theirs stays.** Genesis does
+  not overwrite a rule that already holds just to phrase it differently.
+- **Where the copy assumes a setup they do not have**, drop that part.
+  [`../../templates/user-layer/README.md`](../../templates/user-layer/README.md) §What the copy assumes names
+  exactly which sections those are and what decides it — a Windows install, no `rtk`, no `jq`. Establish which
+  case the machine is in from §Survey's output; do not ask.
+
+**The persona opening and the canary line are part of the layer, not options.** The persona is the first
+paragraph; the canary is the two-line marker in the loop's step 0 that makes "the instructions loaded and the
+documentation was read" observable in the transcript instead of guessed at from behaviour. Both go in. Offering
+a machine the choice of installing neither is offering it the choice of not using genesis at all, and a user who
+does not want a given line can say so in the same breath as "yes" — see §Report and confirm.
 
 The same folder holds the hook set that runs alongside that file — the gate loop, the blanket-kill guard and
 the instructions-loaded log — with what each one costs when it is missing and the command that verifies it was
@@ -188,29 +206,53 @@ actually applied.
 Everything in [`standard.md`](standard.md) §3 applies to how each line is written: specific enough to check,
 safe if obeyed literally, and stated once.
 
-## Proposing the changes
+## Report and confirm — one message, one question
 
-Order the findings by what each one costs per session, highest first. For each, give the finding, the failure
-it produces, and the specific edit. Then ask.
+The survey is done. Write **one short message** and ask **one question**. This is the only time the user is
+asked anything in this mode.
 
-Three rules on the proposal itself:
+The message has three parts and fits on a screen:
 
-- **Deletion beats disabling**, and both beat rewriting in place where the file is long enough that nobody will
-  re-read it. Archive what is removed somewhere the user can find it.
-- **Do not propose a rewrite of the user-level file as one edit.** Propose the sections, so the user can accept
-  the ones they agree with. A single 200-line replacement is unreviewable, and this file governs everything
-  they do.
-- **A change here is measurable, so measure it.** The `InstructionsLoaded` hook appends one line per session to
-  `~/.claude/instructions-loaded.jsonl` recording which instruction files actually loaded and why. Without it,
-  "the priming is now correct" is inferable only from behaviour, which is the inference this whole check exists
-  because it is unreliable. Propose wiring it if it is absent.
+1. **What is wrong** — the findings that survived, worst first, one line each in plain language. Say what
+   breaks, not what a file contains. "A hook stops Claude from ending its turn, so every session runs extra
+   turns you did not ask for" — not "Stop hook present at settings.hooks.Stop[0]".
+2. **What genesis will change** — a short list of the actual changes. Files touched, hooks wired, lines
+   removed. Enough that they know what they are agreeing to.
+3. **The question** — "Proceed?" Nothing else.
+
+Then act on the answer:
+
+| They say | You do |
+|---|---|
+| **Yes** | Apply everything. No further questions. |
+| **No** | Stop. Say in one line what stays broken, and move on to the mode. |
+| **Yes, but explain X** | Explain X, then ask for confirmation again. Nothing is applied until they confirm. |
+| **Yes, except Y** | Apply everything except Y. Do not re-ask about the rest. |
+
+**Rules for that message, and they are the point of this section:**
+
+- **Never a lettered menu of sections to pick from.** Not A–H, not a checklist, not "which of these would you
+  like". One question, one answer.
+- **Never a line-number or section-code reference.** "Sections lines 33–42" is an address only you can resolve;
+  the person reading it cannot open your context. Name the thing in words.
+- **No jargon the user did not use first.** If a term needs a definition, it is the wrong term — write the
+  behaviour instead. A word the plugin's own author would have to look up has already failed.
+- **Short.** A wall of text is refused or skimmed, and both are worse than three clear lines. Detail the user
+  did not ask for goes unsaid until they ask.
+
+Two things to apply without discussion, because they are mechanics rather than preferences:
+
+- **Deletion beats disabling.** A disabled-but-present rule silently fails to load when reinstalled later and
+  nothing explains why. Remove it, and archive what was removed where the user can find it.
+- **Wire the `InstructionsLoaded` hook if it is absent.** It appends one line per session recording which
+  instruction files actually loaded. Without it, "the priming is now correct" can only be inferred from
+  behaviour — the exact inference this check exists because it is unreliable.
 
 ## After
 
-Say plainly which findings the user accepted, which they declined, and — for the declined ones — what will keep
-affecting the repository work. Then continue to the chosen mode, or stop if this was `/genesis system`.
+Say what changed, in one or two lines. If they declined something, say what stays broken. Then continue to the
+chosen mode, or stop if this was `/genesis system`.
 
-There is no measurement that says whether priming improved; only weeks of use. So write down the reasoning
-behind each change somewhere durable. If a repository comes out wrong later, the recovery is to find the
-assumption that was wrong, fix it there, and redo that repository — which only works if the assumption was
-written down.
+Record the reasoning behind the changes somewhere durable — there is no measurement that says whether priming
+improved, only weeks of use, and the recovery when a repository comes out wrong later is to find the assumption
+that was wrong. That only works if it was written down.

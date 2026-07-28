@@ -64,8 +64,9 @@ something about a particular setup, that is recorded here rather than by editing
   installed. Without it, read the section as "the operator asks, per commit and per push", which is the rule
   underneath it.
 - **The canary in §0 of the loop** is instrumentation: it makes the read-the-documentation step observable in
-  the transcript instead of inferable from behaviour. It costs one line per session and is the first thing to
-  cut if the user does not want it.
+  the transcript instead of inferable from behaviour, at a cost of one line per session. It installs with the
+  rest of the layer and is not offered as a choice — a session that drops it loses the only direct evidence
+  that the instructions loaded. Remove it if the user asks for it gone; do not raise it yourself.
 
 ## Dependencies, and what breaks quietly without them
 

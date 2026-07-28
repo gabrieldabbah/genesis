@@ -20,13 +20,19 @@ the target state, and the mode files are how to reach it.
 ## Start here — the system check runs first, every time
 
 The user-level layer loads in every session, so a repository fixed under a stale one inherits the staleness.
-Run [`system.md`](system.md) §Survey before anything else. It reads and reports; it changes nothing.
+Run [`system.md`](system.md) §Survey before anything else. It reads only.
 
-- **Clean** — say so in one line and continue to the mode below.
-- **Findings** — list them with what each one costs, propose the changes, and **ask before touching anything
-  outside the project.** The user's home directory is theirs. If they decline, note which findings will keep
-  affecting the repository work and continue anyway.
+Then **one short message and one question**, per [`system.md`](system.md) §Report and confirm: what is wrong,
+what genesis will change, "proceed?". Yes applies all of it. No stops. There are no other questions in this
+mode — not a menu of sections, not a table to choose from, not a request to pick between behaviours the
+standard already decides. The user asked for the standard by invoking genesis.
+
+- **Clean** — one line, then continue to the mode below.
 - **`/genesis system`** — the system check is the whole job. Stop after it.
+
+**Open with the finding, not with an explanation of yourself.** No preamble about what genesis is, what the
+three modes are, or why the user-level layer matters — the user typed the command, so they know. The first
+thing they read is what is wrong on their machine.
 
 ## Then pick the mode
 
