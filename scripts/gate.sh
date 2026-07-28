@@ -41,8 +41,10 @@ for h in stop-gate.sh mark-edit.sh; do
   out=$(bash "templates/user-layer/hooks/$h" </dev/null 2>&1); rc=$?
   if [ $rc -eq 0 ] && [ -z "$out" ]; then pass "$h exits 0, silent"; else fail "$h rc=$rc out=$out"; fi
 done
-out=$(echo '{}' | node templates/user-layer/hooks/no-blanket-kill.mjs 2>&1); rc=$?
-if [ $rc -eq 0 ] && [ -z "$out" ]; then pass "no-blanket-kill.mjs exits 0, silent"; else fail "no-blanket-kill rc=$rc out=$out"; fi
+for h in no-blanket-kill.mjs context-reground.mjs; do
+  out=$(echo '{}' | node "templates/user-layer/hooks/$h" 2>&1); rc=$?
+  if [ $rc -eq 0 ] && [ -z "$out" ]; then pass "$h exits 0, silent"; else fail "$h rc=$rc out=$out"; fi
+done
 
 echo "== 5. every relative markdown link resolves =="
 # templates/ is excluded: its links resolve from a scaffolded project root, not from here.

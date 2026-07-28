@@ -18,6 +18,7 @@ repository they open, and several of them are hard to notice going wrong.
 | [`hooks/gate.cmd.example`](hooks/gate.cmd.example) | `<repo>/.claude/gate.cmd` | where a repository declares its own gate commands |
 | [`hooks/no-blanket-kill.mjs`](hooks/no-blanket-kill.mjs) | `~/.claude/hooks/no-blanket-kill.mjs` | denies port-keyed and runtime-name process kills that reach other projects |
 | [`hooks/instructions-loaded-log.mjs`](hooks/instructions-loaded-log.mjs) | `~/.claude/hooks/instructions-loaded-log.mjs` | appends one line per session naming which instruction files actually loaded |
+| [`hooks/context-reground.mjs`](hooks/context-reground.mjs) | `~/.claude/hooks/context-reground.mjs` | re-injects the already-loaded `CLAUDE.md` files near the context tail in a long session — see §Re-grounding |
 | [`arm-the-gate.md`](arm-the-gate.md) | nothing — it is a runbook | how to arm the gate in a repository, user-level half confirmed first |
 
 ## The gate loop — three files, one fact each
@@ -49,15 +50,63 @@ that checks a fact and one that overrides a decision. A Stop hook that refuses t
 model judges itself finished is the second kind and belongs nowhere; this one asks whether a specific command
 has run since a specific edit, which is a fact on disk.
 
+## Re-grounding — the instructions repeated near the tail of a long session
+
+[`hooks/context-reground.mjs`](hooks/context-reground.mjs) (UserPromptSubmit) re-injects
+`~/.claude/CLAUDE.md` and the working directory's `CLAUDE.md`, verbatim, once every 150 000 tokens of context
+growth. It adds no instruction of its own: the injected bytes are the same files the session already loaded at
+its start, under a header saying so.
+
+**The problem it addresses is position, not absence.** In a session that has accumulated hundreds of
+thousands of tokens of tool output, the priming files are still in context but sit far behind everything
+added since, and instructions further from the tail pull less on behaviour. Repeating them near the tail
+restores the position. Whether that measurably changes behaviour is an observation the operator can make and
+this file does not assert — what is verifiable is the mechanism: the text is injected, at that cadence, and
+nothing else changes.
+
+**Why it is not the `SessionStart` injection §2 of [`system.md`](../../skills/genesis/system.md) warns
+about.** That warning is about a hook that makes *its own* standing instruction the loudest voice in every
+session, ahead of whatever the user asked for. This one carries no text of its own, adds nothing the user did
+not already install, and fires only after the context has grown past the threshold. It supplies no new
+authority; it re-supplies existing authority at a position where it is read.
+
+**How it decides, and where that can go quiet.** Hook input carries no token count, so the hook derives
+context size from the transcript itself: it reads the last 256 KB of `transcript_path` and takes the final
+`usage` record's `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`. That is a **shape
+this repository does not control** — if the transcript's usage field is renamed or reordered, the regex
+matches nothing, the derived size stays 0, and the hook silently never fires. It fails toward silence in
+every direction: no transcript, an unreadable one, no `CLAUDE.md` to inject, any exception at all — exit 0,
+no output, prompt unaffected. A hook on the prompt path must never be the reason a prompt does not go
+through.
+
+**Cadence and cost.** Each injection is the full byte size of both `CLAUDE.md` files, once per interval, and
+it is charged to the user's context. Set `CLAUDE_REGROUND_INTERVAL` (tokens, minimum 50 000, default 150 000)
+to change it. One marker file per session under `~/.claude/.reground/` records the context size at the last
+injection; markers older than seven days are pruned on each run.
+
+**Read it back rather than assuming it fired:**
+
+```bash
+echo '{}' | node ~/.claude/hooks/context-reground.mjs; echo "rc=$?"   # inert on empty input: rc=0, silent
+ls -la ~/.claude/.reground/ 2>/dev/null   # one file per session that has re-grounded; its content is a token count
+```
+
+An empty `~/.claude/.reground/` after a long session means the hook never reached its threshold — either the
+session stayed under it, or the derived size is stuck at 0 because the transcript shape moved.
+
 ## What the copy assumes, where it may not hold
 
-The prompt text is verbatim apart from the two removals its header comment names. Where it still assumes
+The prompt text is verbatim apart from the three removals its header comment names. Where it still assumes
 something about a particular setup, that is recorded here rather than by editing the wording:
 
 - **§Search and §rtk** describe a native macOS or Linux build (2.1.117+, where `Grep` and `Glob` are replaced
   by shell-function shims) with `rtk` wired as a `PreToolUse` hook. On a Windows or npm install both tools
   are present and there is no shim layer; with no proxy installed, §rtk describes nothing. The session's own
   function list settles which case a machine is in.
+- **§The seam** names the `axiomatic-induction` constitution as the standing law of non-trivial work.
+  Genesis ships it as a skill ([`axiomatic-induction`](../../skills/axiomatic-induction/SKILL.md)), so the
+  reference resolves once the plugin is installed. Without it, the section's own rules — origins on every
+  claim, severity only from read/ran, degrade rather than promote — still stand on their own.
 - **§Commits, pushes, and pull requests** names the `git-commit` and `generate-pr` skills. Genesis ships both
   ([`git-commit`](../../skills/git-commit/SKILL.md),
   [`generate-pr`](../../skills/generate-pr/SKILL.md)), so this section holds as written once the plugin is
@@ -74,7 +123,7 @@ something about a particular setup, that is recorded here rather than by editing
   gate loop is off with nothing announcing the loss. This is fail-open by design; the alternative is wedging
   a session on a missing binary. macOS and Windows ship no `jq` (`brew install jq`, `winget install
   jqlang.jq`, or the distribution's package manager).
-- **`node`** — the two `.mjs` hooks. Present on any machine that will run a build.
+- **`node`** — the three `.mjs` hooks. Present on any machine that will run a build.
 - **`git`** — both bash hooks locate the repository with it and write their markers inside `.git/`, so nothing
   they record can ever be committed.
 - **A POSIX shell.** These are bash hooks. On native Windows Claude Code runs hooks through Git Bash when Git
@@ -90,6 +139,7 @@ ls -la ~/.claude/CLAUDE.md && wc -lc ~/.claude/CLAUDE.md    # the layer exists, 
 jq -e '.hooks.Stop, .hooks.PostToolUse' ~/.claude/settings.json   # the wiring parsed and is present
 bash ~/.claude/hooks/stop-gate.sh </dev/null; echo "rc=$?"        # inert outside a gated repo: rc=0, silent
 echo '{}' | node ~/.claude/hooks/no-blanket-kill.mjs; echo "rc=$?" # allows an empty command: rc=0, silent
+echo '{}' | node ~/.claude/hooks/context-reground.mjs; echo "rc=$?" # no transcript, nothing injected: rc=0, silent
 tail -1 ~/.claude/instructions-loaded.jsonl | jq -r '.files[]?'    # which instruction files a session loaded
 ```
 
