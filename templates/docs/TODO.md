@@ -6,8 +6,7 @@
 >
 > ### Legend
 > **Status** (first marker): `[ ]` not started · `[~]` in progress / partial · `[?]` implemented but **unverified**
-> (code may be done; still needs a passing check or owner sign-off). Done **and verified** items leave this file
-> for [`TODO-done.md`](./TODO-done.md) — there is no `[x]` here.
+> (code may be done; still needs a passing check or owner sign-off) · `[x]` done and verified.
 >
 > **Priority:** prepend `[P]` to items that jump the queue.
 >
@@ -23,12 +22,25 @@
 > Open work is ordered by **priority → ease → dependency count**: quick, unblocked wins first; then foundational
 > work; then larger systems that depend on earlier pieces.
 >
-> ### Maintenance rules
-> 1. When an item is **completed and verified**, move it (whole) into [`TODO-done.md`](./TODO-done.md) under the
->    date it was moved. Do not just tick it here.
-> 2. `[?]` is a holding state — it means "looks done, not proven." It cannot graduate to done until its
->    `→ verify:` passes (auto) or its owner signs off (🙋).
-> 3. Keep this file honest: if work stalls, mark it `[~]` and note why.
+> ### The move rule
+> **A completed *section* moves, not an item.** When a heading section holds no open items at all — every item
+> `[x]`, none `[ ]`/`[~]`/`[?]` — move the whole section into [`TODO-done.md`](./TODO-done.md) under the date it
+> was moved.
+>
+> An `[x]` inside a section still in progress is correct and stays. It records that one part is built while the
+> unit is not, and that mix is the record of where the work stands. Moving a finished part out of an unfinished
+> whole strips the whole of the context needed to finish it — which is why detection is at section level and not
+> at item level.
+>
+> Two things break this silently, and neither is visible to a hook: **an open item written as prose with no
+> marker** reads as finished, and **a heading that contradicts its own body**. Read the prose, not only the
+> markers.
+>
+> `[?]` is a holding state — "looks done, not proven." It cannot graduate until its `→ verify:` passes (🤖) or
+> its owner signs off (🙋). A wrong `[?]` costs one re-check; a wrong `[x]` buries an unverified claim in an
+> archive nobody re-reads.
+>
+> Keep this file honest: if work stalls, mark it `[~]` and note why.
 
 ---
 

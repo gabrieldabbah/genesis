@@ -6,11 +6,11 @@
 > (installed by `{{INSTALL_CMD}}` and governed by [`MAINTENANCE.md`](./MAINTENANCE.md)) — they are the
 > *substrate the package manager and the test gate assume already exists.*
 >
-> **The rule (A4, A14, A2):** genesis must **DETECT** what is already installed, **PROMPT the human EARLY**
-> — before any code is written — for anything **required-but-missing**, and **NOT** prompt for what is already
-> present. Some of these (a container engine, a DB engine) must be in place before *any* development or before
-> the hermetic Docker infra in [`TESTING.md`](./TESTING.md) can run; discovering that at build time is a
-> preventable stall. Detect once, gate once, record the result here.
+> **The rule:** detect what is already installed, and ask the operator only for what is required and missing —
+> before any code is written, not at build time. What is already present is never asked about. Some of these
+> (a container engine, a DB engine) must be in place before any development, or before the hermetic Docker
+> infra in [`TESTING.md`](./TESTING.md) can run, and discovering that mid-build is a preventable stall. Detect
+> once, gate once, record the result here.
 
 ---
 
@@ -31,11 +31,11 @@ The stack is chosen in genesis Phase 4; the moment it is, fill this table from t
 
 > Keep the **predicate** ("a container engine is present and ≥ the min version"), adapt the **tools** to the
 > stack. Prefer a **containerized** dependency over a host install where possible — it keeps the machine clean
-> and the run reproducible (A10); then the DB/queue engine is *not* a host prerequisite, only the container
+> and the run reproducible; then the DB/queue engine is *not* a host prerequisite, only the container
 > engine is. If the project has **no** external dependency and no E2E, only the runtime, build tool, and `git`
 > are required, and this doc says so explicitly.
 
-## 2. Detection — rtk-friendly, read-only *(A2 — observe, don't assume)*
+## 2. Detection — read-only *(observe, don't assume)*
 
 Detect by **observing the machine**, never by trusting a checklist. These probes are read-only, side-effect
 free, and avoid `find -not`/`-exec` (a command proxy rejects them). Run them at the **start of Phase 1** and
@@ -69,15 +69,15 @@ Notes that keep detection honest:
   purposes: compare `--version` output against the `{{...}}_MIN` and treat a shortfall as required-but-missing.
 - **Some runners self-provision.** A few E2E tools download their own browser; if so, the browser is *not* a
   host prerequisite — record that here rather than prompting for it.
-- **Read the real string.** Parse the actual `--version` output (A2); never assume a version from the presence
+- **Read the real string.** Parse the actual `--version` output; never assume a version from the presence
   of a binary or from memory.
 
-## 3. The early gate — prompt once, before development *(A4, A22)*
+## 3. The early gate — prompt once, before development
 
 This is the point of the doc. After detection, partition the tools and act:
 
 1. **Present and sufficient** → say nothing, do not prompt. Asking the human to install what they already have
-   is friction that erodes trust (A20).
+   is friction that erodes trust.
 2. **Required and missing (or too old, or installed-but-not-running)** → **🚧 GATE.** Stop and prompt the
    human *now*, before any build work, with: the exact tool, why this project needs it, the min version, and
    the install pointer. Genesis writes config and code, but **does not install system-level engines or sudo
@@ -87,8 +87,8 @@ This is the point of the doc. After detection, partition the tools and act:
 
 Do this in **Phase 1** for stack-agnostic basics (`git`, a container engine if the archetype clearly needs
 one) and again immediately after **Phase 4** once the runtime, build tool, DB, and E2E needs are known — so the
-human is interrupted **at most twice, early**, never mid-build. A missing required engine discovered while the
-overlord is looping is a stall this gate exists to prevent.
+human is interrupted at most twice, early, never mid-build. A missing required engine discovered mid-build is
+the stall this gate exists to prevent.
 
 ```text
 🚧 GATE — system prerequisite missing
@@ -101,7 +101,7 @@ overlord is looping is a stall this gate exists to prevent.
 ## 4. Recorded state *(fill after detection — this is the evidence)*
 
 The audited result of §2, so the next run (and any reviewer) sees what the machine actually has — every shown
-fact has a source: the command that produced it (A15, A2). Update on every fresh detection.
+fact has a source: the command that produced it. Update on every fresh detection.
 
 | Tool | Required? | Detected version | Status | Resolved how |
 |---|:---:|---|---|---|
@@ -109,7 +109,7 @@ fact has a source: the command that produced it (A15, A2). Update on every fresh
 
 > **🔒 Secrets:** detection probes **tool presence and versions only** — never read, print, or `cat` `.env`,
 > credential files, or any key. To note that an engine needs an env var, reference the **name** only
-> (e.g. "`{{DB_URL_VAR}}` must be set"), never the value. See `AGENTS.md` §6.
+> (e.g. "`{{DB_URL_VAR}}` must be set"), never the value. See `CLAUDE.md` §Secrets.
 
 ---
 

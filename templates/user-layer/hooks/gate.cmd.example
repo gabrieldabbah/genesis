@@ -1,0 +1,12 @@
+# <repo>/.claude/gate.cmd — this repository's definition of done, written for this repository by
+# whoever has read it. CLAUDE.md "## The gate" states the same commands in prose; this is the
+# runnable copy. Nothing is guessed: an undeclared gate can neither pass nor release the stop hook,
+# which is the honest state for a repository whose gate nobody has decided yet.
+#
+# set -e so that if a second line is ever added, a failure in the first is not masked by the last
+# command's exit status.
+set -e
+
+# Replace the line below with this repository's real commands, e.g.
+#   pnpm lint && pnpm typecheck && pnpm test
+bash scripts/gate.sh

@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# .claude/gate.sh — universal gate runner: identical bytes in every repository.
+#
+# The repository's definition of done lives NEXT TO this script, in .claude/gate.cmd — plain
+# shell, one or many lines, written for this repository by whoever has read it. CLAUDE.md's
+# "## The gate" section states the same commands in prose; gate.cmd is the runnable copy. This
+# script supplies only the uniform mechanics: run the declaration from the repo root, record the
+# result where the fleet stop gate (~/.claude/hooks/stop-gate.sh) reads it, mirror the exit code.
+#
+# Nothing here guesses. No stack detection, no default commands: a guess baked into a template
+# becomes a gate that is red forever in one repository and vacuously green in another, and a
+# vacuous green — a release the work never earned — is the exact failure this system exists to
+# prevent. An undeclared gate therefore records nothing: it can neither pass nor release the
+# stop hook.
+set -uo pipefail
+
+dir="$(cd "$(dirname "$0")" && pwd)"
+repo="$(cd "$dir/.." && pwd)"
+cmdfile="$dir/gate.cmd"
+
+# Declared means at least one substantive line — a missing, empty, or comments-only gate.cmd
+# must not run and silently succeed.
+if ! grep -qvE '^[[:space:]]*(#|$)' "$cmdfile" 2>/dev/null; then
+  echo "GATE: not declared — $cmdfile is missing or holds no commands." >&2
+  echo "Write this repository's gate commands there: the same ones CLAUDE.md '## The gate' names." >&2
+  exit 2
+fi
+
+gitdir="$(git -C "$repo" rev-parse --git-dir 2>/dev/null)" || gitdir=""
+case "$gitdir" in ''|/*) ;; *) gitdir="$repo/$gitdir" ;; esac
+
+record() {
+  [ -n "$gitdir" ] || return 0
+  mkdir -p "$gitdir/claude-gate" 2>/dev/null || return 0
+  printf '%s\n' "$1" > "$gitdir/claude-gate/last-gate-run" 2>/dev/null || true
+}
+
+if ( cd "$repo" && bash "$cmdfile" ); then
+  record green
+  echo "GATE: green"
+  exit 0
+else
+  rc=$?
+  record red
+  echo "GATE: red (exit $rc)"
+  exit "$rc"
+fi

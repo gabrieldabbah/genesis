@@ -7,25 +7,16 @@
 *.pem
 *.key
 
-# private seeds (your machine-specific configs live here, untracked)
-seeds/private/
-seeds/*.local.md
-
 # os / editor
 .DS_Store
 *.bak
 
-# local Claude Code / agent config — personal, never committed…
+# local Claude Code config — personal, never committed…
 .claude/*
-.agents/
-# …except the committed autonomy hooks + their wiring (keep-going Stop hook & decide-yourself
-# question gate), so working ON genesis dogfoods them. settings.local.json, skills/, and the
-# transient hook-stop-ok marker stay personal/ignored.
+# …except the hooks genesis itself uses and their wiring, so working ON genesis dogfoods what it ships.
+# settings.local.json and .claude/skills/ stay personal and ignored.
 !.claude/hooks/
 !.claude/settings.json
-!.claude/keep-going.on
-!.claude/decide-yourself.on
-.claude/hook-stop-ok
 
 # local scratch
 .scratch/*

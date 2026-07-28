@@ -1,8 +1,9 @@
 # {{PROJECT_NAME}} — Design
 
-> The design system + screen specs. **Filled BEFORE building UI** (design precedes the build — A4). The `design`
-> skill defines the bar; this file is its project-specific instance. Every UI TODO item traces to a screen spec
-> here and inherits the UI definition-of-done.
+> The design system + screen specs. **Filled before any UI is built** — design precedes the build. This file
+> is the bar: every UI TODO item traces to a screen spec here and inherits §6, the UI definition-of-done.
+> Where Anthropic's `frontend-design` skill is installed it decides the visual direction; §5 and §6 below
+> still have to be met, because that skill covers aesthetics and not accessibility.
 
 ## 1. Principles & references
 
@@ -33,7 +34,7 @@ For each component list the states it must implement. Required components: `{{CO
 For each screen, specify layout + **all states**. Duplicate the block per screen.
 
 ### {{SCREEN_NAME}}
-- **The ONE primary action** (name it; everything else recedes): `{{...}}`
+- **The single primary action** (name it; everything else recedes): `{{...}}`
 - States (keep each minimal — icon + one line + one action, never a paragraph): **loading** (skeletons) ·
   **empty** (guidance + primary action) · **error** (retry) · partial · **success** · edge cases (long text,
   many items, zero items, slow network).
@@ -44,11 +45,13 @@ For each screen, specify layout + **all states**. Duplicate the block per screen
 
 Semantic HTML + landmarks · full keyboard operability with visible focus · contrast ≥ 4.5:1 text / 3:1 large &
 UI · labelled inputs + announced errors · ARIA only when needed · alt text · respect `prefers-reduced-motion` ·
-targets ≥ 24px. Verified by the `a11y` worker.
+targets ≥ 24px. Verified by an explicit accessibility pass over each screen — keyboard-only traversal, a
+contrast check on every token pair in §2, and a screen-reader read of one representative flow. This is a
+gate on §6, not a review note.
 
 ## 6. UI definition of done (acceptance criteria for every UI TODO item)
 
 **passes the simplicity bar** (one clear primary action · minimal text · teaches by doing · purposeful motion ·
 parakeet test) · matches the design system · all component **and** screen states implemented · responsive at
 every breakpoint · WCAG AA (contrast + keyboard + focus) · reduced-motion respected · real **and minimal**
-microcopy · no console errors · reviewed by `design` + `a11y`.
+microcopy · no console errors · accessibility pass clean.

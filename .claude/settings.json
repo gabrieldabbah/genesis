@@ -19,24 +19,12 @@
     ]
   },
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "AskUserQuestion",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/decide-yourself.mjs\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/keep-going.mjs\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/todo-archive-reminder.mjs\"",
             "timeout": 10
           }
         ]

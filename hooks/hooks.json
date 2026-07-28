@@ -5,7 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/stop-acceptance.sh"
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/stop-acceptance.mjs\"",
+            "timeout": 10
           }
         ]
       }

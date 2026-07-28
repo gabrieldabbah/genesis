@@ -1,17 +1,20 @@
 {
   "name": "genesis",
-  "version": "0.1.1",
-  "description": "Greenfield project genesis: an English-first, sandbox-hardened, multi-agent (Opus overlord + specialist workers) system that interviews you, scaffolds a standards-compliant repo, plans, then builds + tests + secures it autonomously until it can't improve without you.",
-  "keywords": ["scaffold", "orchestrator", "subagents", "sandbox", "autonomous", "greenfield", "agents", "skills"],
-  "author": { "name": "gabrieldabbah" },
+  "version": "1.0.0",
+  "description": "Three modes for Claude Code projects: create a new one from an empty folder (research and design before stack, then build and test it), transition an existing repository to a stated standard, and check the user-level ~/.claude layer that loads in every session. English-first, with secret denials and human gates on anything outward-facing. Ships no agent definitions: delegation is decided per task.",
+  "keywords": [
+    "scaffold",
+    "greenfield",
+    "transition",
+    "migration",
+    "standards",
+    "claude-md",
+    "skills"
+  ],
+  "author": {
+    "name": "gabrieldabbah"
+  },
   "homepage": "https://github.com/gabrieldabbah/genesis",
   "repository": "https://github.com/gabrieldabbah/genesis",
-  "license": "MIT",
-  "agents": [
-    "./agents/overlord.md",
-    "./agents/builder.md",
-    "./agents/tester.md",
-    "./agents/reviewer.md",
-    "./agents/secaudit.md"
-  ]
+  "license": "MIT"
 }

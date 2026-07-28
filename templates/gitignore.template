@@ -220,7 +220,7 @@ test-results/
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# Scratch space  (KEEP ALWAYS — ephemeral work area defined in AGENTS.md §6)
+# Scratch space  (KEEP ALWAYS — the ephemeral work area named in CLAUDE.md §Conventions)
 #   Ignore everything inside `.scratch/` EXCEPT its README so the folder, its
 #   purpose, and the documentation gate survive in git.
 # ═════════════════════════════════════════════════════════════════════════════

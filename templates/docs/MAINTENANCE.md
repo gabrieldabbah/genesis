@@ -1,8 +1,7 @@
 # {{PROJECT_NAME}} — Maintenance
 
 > The routine that keeps the project current **without breaking it**. The one rule above all: **every
-> update lands behind green Tier-B tests, or it is reverted.** Updating always includes running the tests
-> (A2). Set this up *before* the first feature.
+> update lands behind green Tier-B tests, or it is reverted.** Set this up *before* the first feature.
 
 ## Test tiers
 
@@ -15,7 +14,7 @@
 | **A — local/context** | fast unit + property + exploratory/context checks | constantly, during dev (`{{TEST_WATCH_CMD}}`) | no |
 | **B — PR-gated** | hermetic, deterministic suite (unit + property + contract + integration) | every commit / pre-merge (`{{TEST_CMD}}`, via `test-gate`) | **yes — must pass to merge** |
 
-Tier B must be free of clock/network nondeterminism (inject clock/seed — A10/A7). It is the contract a
+Tier B must be free of clock/network nondeterminism — inject the clock and the seed. It is the contract a
 reviewer and CI rely on.
 
 ## What to keep current
@@ -25,8 +24,7 @@ reviewer and CI rely on.
 | **Dependencies** (patch/minor) | `{{OUTDATED_CMD}}` then bump | weekly / on alert | behavior-preserving; **mature, vetted versions only** (see policy below); small commits; tests green |
 | **Dependencies** (major) | — | as needed | a **gated task** in `docs/PLAN.md`, never bundled |
 | **Security advisories** | `{{AUDIT_CMD}}` | on alert | patch promptly behind tests — a real advisory is the one reason to move fast |
-| **Skills** (external, `npx`) | `npx skills list` / `npx skills experimental_install` | monthly | **operator-run** — the AI does **not** run `npx skills …`; it lists them. Review the upstream diff before adopting |
-| **The kit** (`axiomatic-induction`, `generate-pr`) | 🤖 re-vendor (`cp -R`) from the kit | when improved | re-copy + re-fill A0 if changed |
+| **Skills** | read what is in `.claude/skills/` | when one misfires | **operator-run.** There is no scheduled skill-restore step here on purpose: a "keep current" routine that re-installs a removed set undoes every deliberate deletion, in the one document someone opens in order to do maintenance |
 
 ## Dependency update policy — careful, not current-for-its-own-sake
 

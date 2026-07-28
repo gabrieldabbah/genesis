@@ -13,10 +13,10 @@
 
 <!-- FILL: the primary user/persona and the job they're hiring this to do. -->
 
-## 3. Prime directive (A0)
+## 3. Prime directive
 
-> **`{{PRIME_DIRECTIVE}}`** — the single measurable thing this project maximizes. Mirrors A0 in the
-> [constitution](../.agents/skills/axiomatic-induction/constitution.md).
+> **`{{PRIME_DIRECTIVE}}`** — the single measurable thing this project maximizes. Every scope decision is
+> settled against it.
 
 ## 4. Success criteria
 
