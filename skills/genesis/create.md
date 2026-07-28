@@ -79,7 +79,9 @@ Stack-agnostic substrate, laid before any stack talk.
 - **The todo-archive Stop hook.** Copy `templates/todo-archive-reminder.mjs` →
   `.claude/hooks/todo-archive-reminder.mjs` and wire it under `hooks.Stop` (the block is in
   `templates/settings.template.jsonc`). It flags a heading section that is entirely complete and still sitting
-  in the live TODO. It needs `docs/TODO-done.md` to exist — without an archive file it silently does nothing.
+  in the live TODO, and a ticked item that is a settled question (an ask-verb opening, or a
+  CONFIRMED/VERIFIED stamp) hiding inside a section that still holds open work. It needs `docs/TODO-done.md`
+  to exist — without an archive file it silently does nothing.
   Fails open, blocks at most once per distinct violation set, disarmed with `touch .claude/todo-archive.off`.
 - **No network exposure in dev or test.** Never auto-start servers; never bind a public interface. Where a
   server is genuinely needed — an asked-for preview, an e2e test — bind `127.0.0.1` only, never `0.0.0.0`, and

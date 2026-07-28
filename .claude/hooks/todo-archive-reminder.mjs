@@ -20,6 +20,14 @@
  * `[x]` children. Reporting the OUTERMOST such section avoids double-flagging a done sub-section inside
  * a done parent. Moving the section (deleting it) makes the flag vanish.
  *
+ * It also flags a second failure the section check is designed to be blind to: a ticked item that is a
+ * settled QUESTION rather than a done work-step. A `[x]` whose text opens with an ask-verb
+ * (confirm/check/verify/validate/decide) or carries a settled stamp (CONFIRMED/VERIFIED/SETTLED/ANSWERED)
+ * was "find out X", and once X is known it is a fact — facts live in the docs or the archive, not the live
+ * TODO. These hide inside sections that still hold open work, which the section check skips wholesale, so
+ * they are detected per line. Ordinary prose ("adds a Verified badge") does not match; the markers are
+ * deliberate.
+ *
  * Portable + auto-detecting: finds the TODO file (TODO.md or docs/TODO.md) and its archive
  * (TODO-COMPLETED.md / TODO-DONE.md / docs/TODO-done.md / …) by trying the known names. No-ops in any
  * repo that lacks both, so it is safe to drop into any project. Registered under
@@ -114,6 +122,27 @@ try {
     let t = h.title; if (t.length > 70) t = t.slice(0, 70) + '…';
     offenders.push(t || '(untitled section)');
   }
+
+  // A checked item whose text is a settled QUESTION is a fact wearing a checkbox — and it hides in the
+  // section check's designed blind spot (a section with open items is skipped wholesale). A done WORK-STEP
+  // inside an in-progress section legitimately stays; an ANSWERED QUESTION never does: its whole content
+  // was "find out X", and once X is known it is a fact, and facts live in the docs, not the TODO.
+  // (2026-07-28: a `[x] confirm <env flag> on the host — CONFIRMED` line sat inside an open section and no
+  // check could see it.) Detected: a [x] line that opens with an ask-verb, or carries an all-caps settled
+  // stamp — deliberate markers, so ordinary prose ("adds a Verified badge") stays clear of it.
+  const doneItemRe = /^\s*[-*] \[[xX]\]\s*(.*)$/;
+  const askVerbRe = /^(?:confirm|check|verify|revalidate|validate|decide)\b/i;
+  const stampRe = /\b(?:CONFIRMED|VERIFIED|SETTLED|ANSWERED)\b/;
+  for (let i = 0; i < lines.length; i++) {
+    const m = doneItemRe.exec(lines[i]);
+    if (!m) continue;
+    const plain = m[1].replace(/[^\p{L}\p{N}\s=._-]/gu, '').trim(); // strip markdown/emoji, keep words
+    if (askVerbRe.test(plain) || stampRe.test(m[1])) {
+      let t = plain || m[1]; if (t.length > 60) t = t.slice(0, 60) + '…';
+      offenders.push(`settled fact still ticked at line ${i + 1}: "${t}" — move it to the docs/archive`);
+    }
+  }
+
   if (offenders.length === 0) process.exit(0);
 
   // Loop-safety backstop: block at most once per distinct set of offenders.
@@ -129,8 +158,8 @@ try {
   const list = offenders.slice(0, 5).map((t) => `  • ${t}`).join('\n');
   const more = offenders.length > 5 ? `\n  …and ${offenders.length - 5} more` : '';
   const reason = [
-    `${offenders.length} section(s) in ${rel(todo)} hold only completed items and no open ones, but are still`,
-    'in the live file:',
+    `${offenders.length} finding(s) in ${rel(todo)} — finished work still sitting in the live file (a section`,
+    'holding only completed items, or a settled fact ticked `[x]`):',
     list + more,
     '',
     `Move each one: delete it from ${rel(todo)} and append it to ${rel(archive)} under a dated heading.`,

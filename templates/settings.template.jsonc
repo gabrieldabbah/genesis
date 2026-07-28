@@ -36,10 +36,11 @@
       // {{DEPLOY_COMMANDS}} — the chosen host's deploy command
     ]
   },
-  // The one hook genesis installs. It checks a fact: a heading section in docs/TODO.md that is entirely
-  // complete, with no open items, and still in the live file rather than the dated archive. Needs
-  // docs/TODO-done.md to exist. Fails open, blocks at most once per violation set, disarmed with
-  // `touch .claude/todo-archive.off`.
+  // The one hook genesis installs. It checks two facts in docs/TODO.md: a heading section that is entirely
+  // complete, with no open items, and still in the live file rather than the dated archive; and a ticked
+  // item that is a settled question ("confirm/verify X", or stamped CONFIRMED/VERIFIED) hiding inside a
+  // section that still holds open work. Needs docs/TODO-done.md to exist. Fails open, blocks at most once
+  // per violation set, disarmed with `touch .claude/todo-archive.off`.
   //
   // The test for adding any other hook: does it check a fact, or override a decision? A hook that refuses to
   // let a turn end, or denies the question tool, overrides a decision — it removes the ability to stop and the
