@@ -238,3 +238,36 @@ the artifact must have**? Conduct is scaffolding. Properties are the standard.
 **Run the gate before calling work done, and record what it printed.** That turns "the gate is X" from an
 assertion into an observation — and a gate nobody can pass teaches an agent to skip it, so a red gate found
 this way is the finding, not an inconvenience.
+
+## 11. Reporting to the operator
+
+Applies to every message genesis writes, in every mode. The person reading it did not read what genesis read,
+and the report is the only part of the work most of them will ever see — so a report they cannot decode is
+work that did not land.
+
+**Lead with the thing that changes what they do.** Not the status line, not the method, not the order the work
+happened in. Where one finding outweighs the rest, it is the first sentence.
+
+**Name the real thing, not its address.** A section number, a line range, a symbol or a file path is an
+address only the writer can resolve; the reader cannot open your context. `§7`, `lines 33–42` and
+`standard.md §6` are addresses. "The gate shelled out to Python on a machine that has no Python" is the
+finding. Put the address in parentheses after the words, for looking up — never in place of them.
+
+**No term the operator has not used first.** Where one seems unavoidable, write the behaviour instead. A word
+the repository's own author would have to look up has already failed.
+
+**What was already fine collapses to a clause.** Findings earn sentences; clean checks earn their names in a
+single line. A message that enumerates everything inspected is a log, and a log is not a report.
+
+**Every item says what it is, why it matters, and what happens next** — including whose move it is. An item
+nobody can act on without asking a follow-up question is not finished.
+
+**Length is set by what the reader has to decide, not by what the work cost.** A long pass with one decision
+in it is a short report. Detail nobody asked for waits until it is asked for.
+
+**A durable record is not the report.** Where a mode writes its reasoning into a decision log or a `docs/`
+record, that file takes the full detail and the operator gets the summary. Reading the record aloud is how a
+report becomes a wall.
+
+The test: read it back as someone who has not opened this repository. Every line they would answer with "what
+is that?" is unfinished.

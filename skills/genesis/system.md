@@ -71,8 +71,13 @@ The two that matter most, because they suppress exactly the behaviour that makes
 - **A `PreToolUse` hook denying the question tool.** The model cannot ask when asking is the right move. Paired
   with the above, the agent can neither ask nor stop, which is a mechanical recipe for confident wrong action.
 
-Also check `SessionStart` hooks: one that injects a standing instruction is active before any prompt, which
-makes it the loudest voice in every session regardless of what the user actually asked for.
+Also check `SessionStart` and `UserPromptSubmit` hooks: one that injects a standing instruction of its own is
+active before the model reads the request, which makes it the loudest voice in every session regardless of
+what the user actually asked for. **The distinction is whose text it injects.** A hook that re-supplies a file
+the user already installed — [`context-reground.mjs`](../../templates/user-layer/hooks/context-reground.mjs)
+repeats `CLAUDE.md` verbatim once the context has grown past a threshold — adds no authority that was not
+already there. A hook that injects wording found nowhere else on the machine has made itself an instruction
+source the user cannot see in any file, and should be reported as one.
 
 **A hook present on disk but absent from the settings file is not installed.** Read the wiring, per hook,
 rather than inferring it from `ls` — an unwired script and a missing one behave identically and look
@@ -220,6 +225,17 @@ The message has three parts and fits on a screen:
    removed. Enough that they know what they are agreeing to.
 3. **The question** — "Proceed?" Nothing else.
 
+**The hook set is proposed whole, and every hook in it is named.** Genesis recommends arming all of them;
+part 2 lists each one the machine is missing with two things in one line — the job it does, and what goes
+wrong while it is absent. A hook left out of the message is a hook the user was never offered, and silence
+about it reads as a hook that does not exist. [`../../templates/user-layer/README.md`](../../templates/user-layer/README.md)
+holds the per-hook detail; the message carries the one-line version and links there for the rest.
+
+Proposing them all is not the same as asking which to take. There is no pick-list, no per-hook question, and
+no count of hooks to accept — the recommendation is all of them, and the user narrows it by naming what they
+do not want ("yes, except the re-grounding one"). A refusal is recorded and applied without re-opening the
+rest.
+
 Then act on the answer:
 
 | They say | You do |
@@ -229,24 +245,20 @@ Then act on the answer:
 | **Yes, but explain X** | Explain X, then ask for confirmation again. Nothing is applied until they confirm. |
 | **Yes, except Y** | Apply everything except Y. Do not re-ask about the rest. |
 
-**Rules for that message, and they are the point of this section:**
+[`standard.md`](standard.md) §11 governs how that message is written — plain words instead of section
+numbers, no term the user has not used, clean checks collapsed to a clause. One rule this mode adds on top:
 
 - **Never a lettered menu of sections to pick from.** Not A–H, not a checklist, not "which of these would you
-  like". One question, one answer.
-- **Never a line-number or section-code reference.** "Sections lines 33–42" is an address only you can resolve;
-  the person reading it cannot open your context. Name the thing in words.
-- **No jargon the user did not use first.** If a term needs a definition, it is the wrong term — write the
-  behaviour instead. A word the plugin's own author would have to look up has already failed.
-- **Short.** A wall of text is refused or skimmed, and both are worse than three clear lines. Detail the user
-  did not ask for goes unsaid until they ask.
+  like", not a count of blocks to accept. One question, one answer.
 
 Two things to apply without discussion, because they are mechanics rather than preferences:
 
 - **Deletion beats disabling.** A disabled-but-present rule silently fails to load when reinstalled later and
   nothing explains why. Remove it, and archive what was removed where the user can find it.
-- **Wire the `InstructionsLoaded` hook if it is absent.** It appends one line per session recording which
-  instruction files actually loaded. Without it, "the priming is now correct" can only be inferred from
-  behaviour — the exact inference this check exists because it is unreliable.
+- **Recommend the `InstructionsLoaded` hook first among the set.** It appends one line per session recording
+  which instruction files actually loaded. Without it, "the priming is now correct" can only be inferred from
+  behaviour — the exact inference this check exists because it is unreliable, which is why it leads the list.
+  It is proposed like the others and declined like the others; nothing in the hook set is wired silently.
 
 ## After
 

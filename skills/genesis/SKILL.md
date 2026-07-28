@@ -57,6 +57,10 @@ already on disk, and re-running the earlier phases would clobber them.
 3. **The repository's own gate, run.** Whatever `CLAUDE.md` now names as the gate — the test command, the
    build, the lint — run it and record the result. A gate nobody can pass teaches an agent to skip it, so a red
    result found here is a finding rather than an inconvenience.
+4. **A report the user can read**, governed by [`standard.md`](standard.md) §11. Lead with what changes what
+   they do. Name things in words, never by section number or line range. Collapse everything that was already
+   fine into one clause. Where the mode also wrote a durable record, the record holds the detail and the
+   message holds the summary — reading the record aloud is how a report becomes a wall of text nobody finishes.
 
 ## Subagents
 

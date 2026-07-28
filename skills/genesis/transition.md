@@ -312,4 +312,25 @@ Then write, in the repository's own decision log or a `docs/` record:
 - Anything the procedure called for that could not be done, with enough detail for someone else to finish it.
 - What might have broken, to watch for over the next weeks of ordinary use.
 
+## Step 8 — Report, and it is not the record
+
+That list is what goes in the file. **What goes to the user is much shorter**, and written under
+[`standard.md`](standard.md) §11. The two are different documents: the record exists so a decision can be
+re-examined in six months, the report exists so someone knows what happened in the last hour. A transition
+touches everything, so reading the record aloud produces exactly the wall §11 forbids.
+
+The message is:
+
+1. **The finding that mattered**, first sentence, in plain words. Usually there is one — something that was
+   broken and now is not, or a claim the repository was making that turned out false. If nothing mattered, say
+   the pass was clean and stop; a quiet result is a result.
+2. **What changed**, as a short list of real things, not step numbers. The reader has not read this runbook and
+   does not know what "step 3" was.
+3. **What is still open**, each with whose move it is. Anything genuinely requiring the user — a `/doctor` run,
+   an install that needs a real session, a decision only they can make — is named once, plainly, with what it
+   unblocks.
+
+Everything else that was inspected and found fine belongs in one clause: name them and move on. A step that
+did not apply — no TODO files, no memory directory — is not a section of the report; it is three words.
+
 Then stop, and let the user review the diff.
