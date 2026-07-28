@@ -109,8 +109,9 @@ Two rules follow from "anyone who installs it" and govern every edit:
 - [skills/genesis/](skills/genesis/) — the three modes. `SKILL.md` routes; `standard.md` is the rubric;
   `create.md`, `transition.md` and `system.md` are the runbooks; `reference.md` holds permissions,
   integrations, resuming after a stop, and the README audit.
-- [skills/](skills/) — the working skills genesis and its scaffolded projects use: `todo`, `test-gate`,
-  `sources`, `security-audit`, `repo-hardening`, `git-commit`, `generate-pr`. Visual design craft and
+- [skills/](skills/) — the working skills genesis and its scaffolded projects use: `axiomatic-induction`
+  (the constitution and reasoning method for non-trivial work), `todo`, `test-gate`, `sources`,
+  `security-audit`, `repo-hardening`, `git-commit`, `generate-pr`. Visual design craft and
   vulnerability hunting are deliberately not among them — [skills/README.md](skills/README.md) §What genesis
   deliberately does not ship names the Anthropic plugin each one points at instead.
 - **No agents.** Genesis defines none and installs none; delegation is decided per item during a build.
