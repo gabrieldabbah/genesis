@@ -9,8 +9,9 @@ variable *names* are documented; real values never live in the repo.
 > **🔒 Never read, `cat`, print, or echo `.env` (or any `.env.*` with real values).** Per
 > [`CLAUDE.template.md`](../CLAUDE.template.md) §Secrets, to check a value only test presence
 > (`[ -n "$VAR" ] && echo set`), never the value. Only application code loads `.env`, at runtime, and must
-> never log a secret. `.claude/settings.json` denies these paths to the Read tool; from a shell command it is
-> a rule you follow, not a boundary, unless this project enabled an OS sandbox.
+> never log a secret. `.claude/settings.json` denies these paths to the file tools and to `cat`, `head`, `tail`
+> and `sed`; a script that opens the file itself is not covered, and there this is a rule you follow rather
+> than a boundary, unless this project enabled an OS sandbox.
 
 ## The files
 

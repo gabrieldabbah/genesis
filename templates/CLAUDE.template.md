@@ -70,9 +70,11 @@ Never read, `cat`, print or echo `.env` or any key file; never paste a secret in
 To check a variable is set, test presence only (`[ -n "$VAR" ] && echo set`), never the value. Secrets live in
 `.env` (git-ignored) or the host environment; `.env.example` documents variable **names**.
 
-**This is a rule, not a wall.** `.claude/settings.json` denies these paths to the Read tool, but nothing stops
-a shell command from reading them unless an OS sandbox is enabled — which this project does not use by
-default. Treat the rule as the boundary, because here it is the only one.
+**Know where the wall ends.** `.claude/settings.json` denies these paths to the file tools and to the shell
+commands Claude Code recognises as file reads — `cat`, `head`, `tail`, `sed` — so those are refused. A program
+that opens the file itself, such as a node or python one-liner, is not covered by anything here; only an OS
+sandbox would cover it, and this project does not use one by default. For that remainder the rule above is the
+only boundary.
 
 ## No network exposure in development or test
 
@@ -144,6 +146,7 @@ Reach for a skill when its moment comes; a description that matches is the invit
 
 | Skill | When |
 |---|---|
+| `parallel-work` | another Claude session is editing this repository at the same time |
 | `todo` | adding, advancing or sorting work; archiving a finished section |
 | `sources` | researching anything, or choosing and vetting a dependency |
 | `test-gate` | before a commit, and before calling work done |

@@ -93,8 +93,11 @@ Stack-agnostic substrate, laid before any stack talk.
   most common reason someone disables a sandbox, and it is fixed by granting the cache path, not by leaving it
   for the build to hit.
 
-  **Say which protections are boundaries and which are rules.** `cat .env` from a shell command is not blocked
-  by anything unless a sandbox is on. Report that plainly rather than implying more coverage than exists.
+  **Say which protections are boundaries and which are rules.** The deny rules reach further than a Read tool:
+  they also block Edit on the same path and the file-reading shell commands Claude Code recognises, `cat`,
+  `head`, `tail` and `sed`. What they do not reach is a program that opens the file itself — a node or python
+  one-liner — and only a sandbox stops that. Report the line where it actually falls rather than implying more
+  coverage than exists, or less.
 
 Lay the foundation, say what you set, and continue.
 
