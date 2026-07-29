@@ -7,24 +7,37 @@
 // nothing. See skills/genesis/reference.md §Permissions for how to turn one on properly if you want it.
 {
   "permissions": {
-    // Blocks the Read tool. Note the boundary honestly: this does NOT stop a shell command. `cat .env` from
-    // Bash is not covered by any rule here — only an OS sandbox does that. Secret handling from the shell is
-    // a rule stated in CLAUDE.md, not a control, and CLAUDE.md § Secrets says so plainly.
+    // What a Read deny rule actually covers, per https://code.claude.com/docs/en/permissions §Read and Edit,
+    // read on 2026-07-29 against Claude Code 2.1.220:
+    //   - the Read tool, and best-effort the other built-in readers, @file mentions, and IDE selections;
+    //   - the Edit tool on the same path, including creating a file there (2.1.208 and later);
+    //   - the file-reading Bash commands Claude Code recognises — `cat`, `head`, `tail`, `sed`.
+    // What it does NOT cover: a program that opens the file itself — a node or python script, or any other
+    // subprocess reading indirectly. Only an OS sandbox stops those. State that boundary honestly rather than
+    // calling this a wall.
     //
-    // Each project-relative path is listed in every spelling Claude Code accepts — bare (`.env`),
-    // explicitly-relative (`./.env`), and recursive in both forms (`./**/` and `//**/`). Which spelling a
-    // given build's matcher honours is a version-sensitive detail, and the cost is asymmetric: a redundant
-    // rule costs a line, a rule that silently matches nothing leaves `.env` readable while this file claims
-    // otherwise. Redundancy here is deliberate — do not "tidy" it to one form without testing the survivor
-    // against a real file on the target build.
+    // Env files are listed by name, not as `.env.*`, and that is load-bearing. A deny rule cannot carry an
+    // exception: a broader deny beats a narrower allow, so `.env.example` can only stay reachable by never
+    // being denied. It has to stay reachable — it is the one committed env file, it holds variable names with
+    // empty values by construction, and this build writes each integration's keys into it after this settings
+    // file already exists. A `.env.*` glob makes the file the build is instructed to maintain both unreadable
+    // and unwritable, and the failure lands mid-build with no explanation.
+    //
+    // So: any further env filename this project invents goes in this list, in both spellings, when it is
+    // created. `./x` is the project-relative anchor (identical to bare `x`); `//**/x` is the absolute one that
+    // also catches a copy outside the project and, on Windows, every drive.
     "deny": [
-      "Read(.env)", "Read(.env.*)",
-      "Read(./.env)", "Read(./.env.*)",
-      "Read(./**/.env)", "Read(./**/.env.*)",
-      "Read(//**/.env)", "Read(//**/.env.*)",
-      "Read(**/.env)", "Read(**/.env.*)",
-      "Read(secrets/**)", "Read(./secrets/**)", "Read(**/secrets/**)",
-      "Read(**/*.pem)", "Read(**/*.key)", "Read(./**/*.pem)", "Read(./**/*.key)",
+      "Read(./.env)", "Read(./**/.env)", "Read(//**/.env)",
+      "Read(./.env.local)", "Read(./**/.env.local)", "Read(//**/.env.local)",
+      "Read(./.env.dev)", "Read(./**/.env.dev)", "Read(//**/.env.dev)",
+      "Read(./.env.development)", "Read(./**/.env.development)", "Read(//**/.env.development)",
+      "Read(./.env.test)", "Read(./**/.env.test)", "Read(//**/.env.test)",
+      "Read(./.env.staging)", "Read(./**/.env.staging)", "Read(//**/.env.staging)",
+      "Read(./.env.prod)", "Read(./**/.env.prod)", "Read(//**/.env.prod)",
+      "Read(./.env.production)", "Read(./**/.env.production)", "Read(//**/.env.production)",
+      "Read(./.env.*.local)", "Read(./**/.env.*.local)", "Read(//**/.env.*.local)",
+      "Read(./secrets/**)", "Read(**/secrets/**)",
+      "Read(./**/*.pem)", "Read(./**/*.key)", "Read(**/*.pem)", "Read(**/*.key)",
       "Read(~/.ssh/**)", "Read(~/.aws/**)", "Read(~/.gnupg/**)", "Read(~/.config/gh/**)",
       "Read(~/.netrc)", "Read(~/.npmrc)", "Read(~/.config/git/**)"
       // {{INTEGRATION_SECRET_PATHS}} — env files / key paths for chosen integrations

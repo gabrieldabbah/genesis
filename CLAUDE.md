@@ -37,8 +37,8 @@ makes a network call.** The complete list of what it touches:
 
 ## The gate
 
-Done means all of these pass. `scripts/gate.sh` was green across all seven categories (14 units) on
-2026-07-28. The install check is older **and now describes a superseded version**: on 2026-07-27 the plugin
+Done means all of these pass. `scripts/gate.sh` was green across all seven categories (17 units) on
+2026-07-29. The install check is older **and now describes a superseded version**: on 2026-07-27 the plugin
 installed from this checkout and loaded as `genesis@genesis-marketplace` 0.3.0. The manifest is 1.0.0 as of
 2026-07-28, so that observation no longer covers what an installer gets — item 3 must be re-run before the
 release is called verified.
@@ -56,8 +56,11 @@ written again.
 
    §7 is where a defect becomes a check instead of a memory: no `agents/` directory, none of the emphasis
    vocabulary [standard.md](skills/genesis/standard.md) §3 prohibits, every hook command quoting its path
-   variables, and every registry `reference:` naming a file that exists. Each of those was a real defect —
-   the quoting one shipped, and word-splits on any install path containing a space. **Finding one a command
+   variables, no deny rule swallowing `.env.example`, every shipped skill listed in
+   [skills/README.md](skills/README.md), and every registry `reference:` naming a file that exists. Each of
+   those was a real defect — the quoting one shipped, and word-splits on any install path containing a space;
+   the `.env.*` deny shipped too, and made the one committed env file unreadable and, on Claude Code 2.1.208
+   and later, unwritable in the middle of the build that maintains it. **Finding one a command
    could have caught is the signal to add a check**, not just to fix the instance.
 
 2. **CI runs that same script** ([.github/workflows/gate.yml](.github/workflows/gate.yml)) on every pull
@@ -110,7 +113,8 @@ Two rules follow from "anyone who installs it" and govern every edit:
   `create.md`, `transition.md` and `system.md` are the runbooks; `reference.md` holds permissions,
   integrations, resuming after a stop, and the README audit.
 - [skills/](skills/) — the working skills genesis and its scaffolded projects use: `axiomatic-induction`
-  (the constitution and reasoning method for non-trivial work), `todo`, `test-gate`, `sources`,
+  (the constitution and reasoning method for non-trivial work), `parallel-work` (the rules for a repository
+  two Claude sessions are editing at once), `todo`, `test-gate`, `sources`,
   `security-audit`, `repo-hardening`, `git-commit`, `generate-pr`. Visual design craft and
   vulnerability hunting are deliberately not among them — [skills/README.md](skills/README.md) §What genesis
   deliberately does not ship names the Anthropic plugin each one points at instead.

@@ -114,6 +114,44 @@ print("  ok    every hook command quotes its path variables" if not bad else "")
 sys.exit(1 if bad else 0)
 PY
 
+# No shipped deny rule may swallow `.env.example`. It is the one committed env file, it holds names with
+# empty values, and a build writes each integration's keys into it *after* the settings file exists — so a
+# `.env.*` glob makes the file the build must maintain unreadable, and since Claude Code 2.1.208 uneditable
+# too. Shipped that way once; this is that defect as a check. Matching is fnmatch on the rule's last path
+# segment, which is faithful enough for the globs that appear here.
+python3 - <<'PY' || fails=$((fails + 1))
+import fnmatch, glob, re, sys
+targets = ['.env.example', '.env.production.example']
+bad = []
+for f in ['.claude/settings.json'] + glob.glob('templates/**/settings*.json*', recursive=True):
+    for rule in re.findall(r'"(?:Read|Edit)\(([^")]+)\)"', open(f, encoding='utf8').read()):
+        seg = rule.rstrip('/').split('/')[-1]
+        # A trailing `**` or `*` scopes a directory (`./secrets/**`); an example file inside one is denied
+        # on purpose. Only filename patterns are in question here.
+        if seg in ('*', '**'):
+            continue
+        for t in targets:
+            if fnmatch.fnmatch(t, seg):
+                bad.append(f"{f}: {rule} denies {t}")
+for b in bad:
+    print(f"  FAIL  {b}")
+print("  ok    no deny rule swallows .env.example" if not bad else "")
+sys.exit(1 if bad else 0)
+PY
+
+# Every shipped skill is listed in skills/README.md. A skill nobody can find in the roster is a skill the
+# installer never learns exists — which is how one sat outside the plugin entirely.
+python3 - <<'PY' || fails=$((fails + 1))
+import os, sys
+listed = open('skills/README.md', encoding='utf8').read()
+bad = [d for d in sorted(os.listdir('skills'))
+       if os.path.isfile(f'skills/{d}/SKILL.md') and f'`{d}`' not in listed]
+for b in bad:
+    print(f"  FAIL  skills/{b}/ is not listed in skills/README.md")
+print("  ok    every shipped skill is in the roster" if not bad else "")
+sys.exit(1 if bad else 0)
+PY
+
 # A registry `reference:` must name a file that exists.
 python3 - <<'PY' || fails=$((fails + 1))
 import glob, os, re, sys

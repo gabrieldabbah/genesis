@@ -61,6 +61,10 @@ already on disk, and re-running the earlier phases would clobber them.
    they do. Name things in words, never by section number or line range. Collapse everything that was already
    fine into one clause. Where the mode also wrote a durable record, the record holds the detail and the
    message holds the summary — reading the record aloud is how a report becomes a wall of text nobody finishes.
+5. **On a first install, the skill roster — after the report, and only then.** Someone meeting genesis for the
+   first time now has ten skills and nothing that says what they are for.
+   [`system.md`](system.md) §A first install ends by naming the skills holds the trigger and the shape. A
+   machine that already carried this standard skips it.
 
 ## Subagents
 

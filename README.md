@@ -2,7 +2,7 @@
 
 # Genesis
 
-**Describe what you want. Get a real codebase — researched, designed, built, tested, and secured.**
+**Ultimate Opus 5 builder. Genesis creates and transforms any setup into the ultimate setup for generation 5 models.**
 
 Genesis turns an empty folder into a working SaaS, web app, API, or CLI, running autonomously on your machine
 in [Claude Code](https://claude.com/claude-code). It can also take a codebase you already have and bring it up
@@ -243,10 +243,10 @@ autonomous the build has been up to that point.
 **There's no OS sandbox by default, and that's on purpose.** One strict enough to matter also blocks
 `pnpm install` — package managers write to a shared store outside your project — and a control that breaks
 ordinary work gets switched off, taking the useful protections with it. Genesis tells you plainly which
-protections are boundaries and which are rules the agent follows: a shell command *can* read a file the Read
-tool can't. If you want a real sandbox — a client repo, real customer data, an unattended run on a shared
-machine — genesis sets one up that actually works on the first install, rather than one you'll disable by
-Tuesday.
+protections are boundaries and which are rules the agent follows: `cat .env` is refused along with the Read
+tool, but a script that opens the file itself isn't stopped by anything. If you want a real sandbox — a client
+repo, real customer data, an unattended run on a shared machine — genesis sets one up that actually works on
+the first install, rather than one you'll disable by Tuesday.
 
 **The network stays open, on purpose.** Blocking outbound traffic during development sounds safer and isn't:
 it breaks `npm install` the moment a package fetches its own binary, along with research and every service CLI
@@ -281,7 +281,7 @@ ones are gone.
 |---|---|
 | [`skills/genesis/standard.md`](skills/genesis/standard.md) | **the standard** — the quality bar all three modes measure against. Start here if you only read one file |
 | [`skills/genesis/`](skills/genesis/) | how each mode actually runs: `create.md`, `transition.md`, `system.md` |
-| [`skills/`](skills/) | the working skills — task tracking, tests, research, security, repo hardening, commits, PRs |
+| [`skills/`](skills/) | the working skills — task tracking, tests, research, security, repo hardening, commits, PRs, and the rules for sharing a repository with another running session |
 | [`hooks/`](hooks/) | the one script that keeps a build from declaring itself done early. Dormant outside a build |
 | [`integrations/`](integrations/) | one file per supported service — add yours here; [`references/`](integrations/references/) holds the domain gotchas |
 | [`templates/`](templates/) | what a new project gets on day one: `CLAUDE.md`, docs, env files, PR template |
@@ -328,8 +328,10 @@ to ask.
 `.env` files, `~/.ssh`, `~/.aws` and credential stores are denied to Claude's file-reading tool, and genesis
 checks that the denial actually holds rather than trusting the config.
 
-Be aware of the boundary: without an OS sandbox — which genesis doesn't set up by default — a *shell command*
-can still read those files. Genesis will configure a working sandbox if you want that enforced. See
+Be aware of where the boundary ends. `cat .env` is refused too — Claude Code applies the same rules to the
+shell commands it recognises as file reads. What gets through is a *program* that opens the file itself, like a
+node or python one-liner, and only an OS sandbox stops that — which genesis doesn't set up by default. Genesis
+will configure a working sandbox if you want that enforced. See
 [what it can and can't touch](#what-it-can-and-cant-touch).
 </details>
 

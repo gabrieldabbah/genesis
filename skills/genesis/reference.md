@@ -20,14 +20,20 @@ So what is left, and it is stated honestly rather than dressed up:
 
 | Control | Covers | Does not cover |
 |---|---|---|
-| `permissions.deny` `Read(...)` | the Read tool | a shell command. `cat .env` is not blocked by this |
+| `permissions.deny` `Read(...)` | the Read tool, Edit on the same path, and the shell commands Claude Code recognises as file reads (`cat`, `head`, `tail`, `sed`) | a program that opens the file itself — `node -e`, a python script, any indirect subprocess |
 | `permissions.ask` on push, merge, deploy | outward-facing actions | anything else |
 | Claude Code's permission mode | whether a tool call runs at all | what a command touches once it runs |
 | `CLAUDE.md` § Secrets | what the agent should do | it is a rule, not a boundary |
 
-**Do not describe this as a sandbox.** The generated `CLAUDE.md` says never read, `cat`, print or echo a secret,
-and that is a rule the agent follows, not a wall it cannot cross. Say which is which — a project owner deciding
-what to trust an unattended run with deserves the real answer.
+**Do not describe this as a sandbox.** A deny rule is enforcement with a documented edge, not a wall: it holds
+for the file tools and for the shell commands Claude Code parses as file reads, and it stops at the first
+program that opens the file for itself. The generated `CLAUDE.md` covers that remainder with a rule the agent
+follows. Say which part is which — a project owner deciding what to trust an unattended run with deserves the
+real answer, and understating the coverage costs credibility the same way overstating it does.
+
+The behaviour above is from <https://code.claude.com/docs/en/permissions> §Read and Edit, read 2026-07-29
+against Claude Code 2.1.220; the Edit half arrived in 2.1.208. Re-read it rather than trusting this paragraph
+if the target machine is older.
 
 ### If a project wants a real sandbox
 
@@ -64,8 +70,9 @@ directory, so grant the caches for the chosen stack or nothing will install:
 back; a shell profile is code that runs as the operator on their next terminal, and a directory on `$PATH` is
 the same thing wearing a different hat. Widen writes freely, and never widen them *there*.
 
-`denyRead` is the half worth having in the first place — it is the only mechanism that stops a shell command
-reading `~/.ssh`.
+`denyRead` is the half worth having in the first place — it is the only mechanism that stops a *program*
+reading `~/.ssh`. The permission deny rules already cover `cat ~/.ssh/id_rsa`; what they cannot see is a script
+that opens the file itself, and this is what closes that.
 
 **Known incompatibilities, so a build does not discover them:** `docker` cannot run sandboxed. Go-based CLIs
 (`gh`, `gcloud`, `terraform`) fail TLS verification under macOS Seatbelt — both go in `excludedCommands`.
@@ -188,10 +195,15 @@ sidesteps any uncertainty about exact key names: if the behaviour is right, the 
    confirm it fails — then re-confirm 2 and 3 still pass, because a write scope that misses a package
    manager's cache is what breaks them.
 
-Then **report what is a boundary and what is a rule.** With no sandbox, `cat .env` from a shell command is not
-blocked by anything; the protection is the instruction in `CLAUDE.md`. Say so. A project owner deciding what to
-trust an unattended run with is entitled to the real answer, and overstating coverage is worse than having
-less of it.
+Then **report what is a boundary and what is a rule.** With no sandbox, the deny rules stop the file tools and
+the shell commands Claude Code recognises as file reads; a program that opens the file itself gets through, and
+there the protection is the instruction in `CLAUDE.md`. Say where that line falls. A project owner deciding
+what to trust an unattended run with is entitled to the real answer, and overstating coverage is worse than
+having less of it.
+
+Probe 1 above tests the tool path. **Test the shell path in the same pass** — `cat` a known-denied path and
+confirm it is refused — because that is the half a reader is most likely to doubt, and on a build older than
+2.1.208 it is also the half whose behaviour differs.
 
 **If a check misbehaves, fix it yourself** rather than handing it to the user. Where a sandbox is enabled and a
 setting name differs on this build, open `/sandbox` (you, not the user), read the correct key, fix
