@@ -260,10 +260,38 @@ Two things to apply without discussion, because they are mechanics rather than p
   behaviour — the exact inference this check exists because it is unreliable, which is why it leads the list.
   It is proposed like the others and declined like the others; nothing in the hook set is wired silently.
 
+## A first install ends by naming the skills
+
+Someone who has just installed genesis has ten skills they never asked for by name, and no listing anywhere
+tells them what those skills are for. The plugin's own value is invisible until someone says it out loud, once.
+
+**The trigger is a fact from §Survey, not a guess:** this is a first install when §Survey found no user-level
+`CLAUDE.md`, or found one that did not already carry this standard. On a machine that already had it, skip
+this section — a roster the user has read before is noise.
+
+**Where it goes: last.** `/genesis system` ends with it. When the system check is the opening of a create or
+transition run, it moves to the end of *that* run's report instead — a roster printed before the work starts
+is read as preamble and forgotten by the time the work is done.
+
+**What to write.** One table with three columns — the skill's name, what it does in a clause, and the moment
+to reach for it — covering every skill in [`../README.md`](../README.md). Do not open ten files to build it:
+every installed skill's `description` is already loaded in this session, and that is what to compress. Plain
+language, no section numbers, no file paths, one line per skill.
+
+Two sentences go with the table and nothing else does:
+
+- **Nothing has to be memorised.** Each skill announces itself when its moment comes; typing `/<name>` calls
+  one directly.
+- **`parallel-work` is the one with a trigger the user has to supply**, because no file on disk reveals it:
+  when a second Claude session is editing the same repository — two terminals, an agent running alongside
+  them, a teammate on the same checkout — say so, and that session stops writing to git, stays inside the
+  files it was asked to touch, and narrows or defers any test run that could corrupt the other session's.
+
 ## After
 
 Say what changed, in one or two lines. If they declined something, say what stays broken. Then continue to the
-chosen mode, or stop if this was `/genesis system`.
+chosen mode, or stop if this was `/genesis system` — ending with §A first install ends by naming the skills
+where that section's trigger was met.
 
 Record the reasoning behind the changes somewhere durable — there is no measurement that says whether priming
 improved, only weeks of use, and the recovery when a repository comes out wrong later is to find the assumption
