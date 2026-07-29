@@ -8,6 +8,7 @@ moment — it is written as a trigger, not a summary.
 |---|---|
 | [`genesis`](genesis/) | the plugin itself — routes to create, transition or system check |
 | [`axiomatic-induction`](axiomatic-induction/) | planning or executing any non-trivial work — the constitution and the reasoning method |
+| [`parallel-work`](parallel-work/) | another Claude session is editing the same repository at the same time |
 | [`todo`](todo/) | adding, advancing or sorting work; archiving a finished section |
 | [`test-gate`](test-gate/) | before a commit and before calling work done |
 | [`sources`](sources/) | researching anything, or vetting a dependency |
