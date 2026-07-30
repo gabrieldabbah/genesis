@@ -1,0 +1,27 @@
+# Automated dependency updates. A dependency advisory is the one class of problem that arrives on
+# someone else's schedule rather than yours, so this is the update path that does not depend on
+# anyone remembering to look.
+#
+# Alerts and automatic security fixes are a repository SETTING, not this file — turn both on as well
+# (the `repo-hardening` skill's step 1). This file adds the routine, non-security updates.
+version: 2
+updates:
+  # Swap the ecosystem for the stack: pip, gomod, cargo, bundler, maven, composer, and so on. A
+  # project with more than one manifest gets one block per directory.
+  - package-ecosystem: "{{PACKAGE_ECOSYSTEM}}"
+    directory: "/"
+    schedule:
+      interval: weekly
+    # One grouped pull request instead of thirty. A batch is reviewable; a flood gets ignored, and an
+    # ignored update queue is the same as no update queue.
+    groups:
+      dependencies:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+
+  # The workflows' own actions pin to versions that also age, and an unmaintained action is the
+  # supply-chain half of this problem.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

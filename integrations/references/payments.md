@@ -35,6 +35,6 @@ keep building.
 ## Scope
 
 The payment flow the item names — not the pricing page, not the account model, not a refund flow nobody asked
-for. A payments integration invites adjacent work; leave it on `docs/TODO.md` rather than building it uninvited.
+for. A payments integration invites unrelated work; leave it on `docs/TODO.md` rather than building it uninvited.
 
 The provider's registry `security:` items belong to the security pass.

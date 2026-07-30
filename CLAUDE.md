@@ -106,6 +106,15 @@ Two rules follow from "anyone who installs it" and govern every edit:
 - **A defect here has a blast radius of every machine that installs it.** A hook that refuses to let a turn
   end, a skill that mandates its own invocation, a template instructing behaviour the current model already
   performs — each ships, armed, to strangers.
+- **Write for the general installer, never for this machine.** Everything here is public and permanent, so
+  a detail carried over from a working repository — another project's name, a path from a developer's disk,
+  a provider account, an incident from a private codebase, a workflow that only makes sense given one
+  person's setup — is published the moment it lands, and a public commit stays reachable through forks and
+  caches after it is deleted. When a practice is worth shipping because it was learned somewhere real, ship
+  **the mechanism and the failure it prevents**, not where it happened: "a shallow clone reports every file
+  as changed today" travels; the repository and pull request that taught it do not. The asymmetry is
+  deliberate — an installed genesis adapts itself to whoever is running it, and that is the only place
+  adaptation belongs.
 
 ## Layout
 

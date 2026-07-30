@@ -8,6 +8,16 @@ argument-hint: "[target branch]"
 
 # Generate a Pull Request
 
+## When this skill runs
+
+**Only when the operator invokes it** — `/generate-pr`, or an explicit request to open or fill a PR in their
+own words. A pull request exists for one purpose: promoting the working branch to the branch that releases.
+
+A PR is never opened on an agent's own initiative — not to trigger CI, not to summarise a branch, not because
+the work looks finished. Reading PR state to answer a question (`gh pr list`) is ordinary; creating one is not.
+Pushing to the working branch is a separate act under its own rule (the `git-commit` skill) and never implies a
+PR.
+
 ## Overview
 
 Produce a fully-filled pull request — every applicable section of
@@ -113,6 +123,50 @@ git log "$TARGET..HEAD" --format='%s%n%b%n---'      # subjects + bodies + traile
   larger than ~1500 lines, do **not** read every line — ground your prose in the commit subjects/bodies +
   `--stat` + a few sampled hunks from the most-changed files.
 
+### Pre-flight — run what CI will run, before the PR exists
+
+**Opening a pull request is how a repository's CI is usually invoked, so opening one with a known-red lane is
+the expensive mistake.** Read the workflow files rather than recalling them; they are the authority and they
+move:
+
+```bash
+ls .github/workflows/*.y*ml 2>/dev/null && cat .github/workflows/*.y*ml
+```
+
+Then run the project's gate — the commands its `CLAUDE.md` names as the definition of done. Most of what CI
+runs is that gate. What is left is **the gap**, and the gap is where a green local run still produces a red
+PR. Two kinds of lane live there:
+
+- **A lane the gate does not run at all.** A secret scan is the usual one. Run it here, on the tree CI will
+  actually have — CI checks out **tracked files at a commit**, before any dependency install, so a scanner
+  pointed at the working directory reads dependency trees, build output, backups and a real `.env` that CI
+  never sees. Those findings mean nothing and they train you to ignore the check that exists to catch a
+  committed key:
+
+  ```bash
+  # Reproduce CI's tree exactly, then scan that.
+  TREE=$(mktemp -d) && git archive HEAD | tar -x -C "$TREE" &&
+    gitleaks dir "$TREE" --no-banner --redact --exit-code 1; echo "exit=$?"; rm -rf "$TREE"
+  ```
+
+  Use the real scanner when it is installed (`command -v gitleaks`). A hand-rolled grep is not the same check
+  in either direction: it misses the entropy and provider-signature rules, and it fires on fixtures a config
+  file deliberately allowlists. Absent, say the scan was approximate rather than reporting it as CI's check.
+  A finding is read before it is repeated — the file and line go in the report, never the value — and a
+  flagged tracked file is a stop: the credential is rotated and removed before anything is pushed.
+
+- **A lane the gate runs but cannot answer yet.** Anything reading *committed* state — documentation
+  freshness, changed-file filters, a tag-derived version — is blind to work still in the working tree, so it
+  reports clean locally and goes red minutes later with nothing having changed between the two runs. Where
+  the project ships a pending-aware form (`node scripts/check-docs.mjs --pending`), run that before the
+  commits this skill makes, and the plain form after them; the second run is the one CI reproduces.
+
+**Also check what the runtime is.** Where CI pins a version the local one does not match, a green build here
+predicts little — name the version that produced the result.
+
+A red pre-flight is a **stop**, not a caveat to write into the body. Report what failed, fix it, and open the
+PR from a state already seen to pass.
+
 ## Step 1 — Deterministic classification ("what is true")
 
 **Type of change** — parse Conventional-Commit types from the `git log` subjects and tick every type present:
@@ -144,13 +198,20 @@ printf '%s\n' "$LOG" | grep -oiE '(closes|fixes|refs) #[0-9]+'              # li
 Fill **Motivation & context** from these. If a field has no hit, write **`n/a`** — do not guess a
 plausible id.
 
-**Secret / PII scan** (informs the "No secrets/PII" box; also a hard stop):
+**Secret / PII scan** (informs the "No secrets/PII" box; also a hard stop). The authoritative check is the
+scanner in the pre-flight above — it is what CI runs. The two below are the **diff-scoped supplement**, worth
+running because they answer a question the scanner does not (*did this branch add it?*), and the **fallback**
+when no scanner is installed:
 
 ```bash
 git diff --name-only "$TARGET...HEAD" | grep -qxE '\.env(\..*)?' && { echo "ABORT: .env in diff"; exit 1; }
 git diff "$TARGET...HEAD" | grep -nE '(sk-[A-Za-z0-9]{12,}|API_KEY *= *["'\'']?[A-Za-z0-9]|-----BEGIN [A-Z]+ PRIVATE KEY-----)' && \
   { echo "ABORT: a secret-looking value is in the diff — do not open a PR."; exit 1; }
 ```
+
+A hit is read before it is acted on: a scanner's config allowlists real fixtures and this grep does not
+consult it. What must never happen is the reverse — reporting this grep's silence as "the secret scan passed"
+when the scanner never ran.
 
 ## Step 2 — Prose ("voice" — you write it, grounded only in Step 0/1 facts)
 
@@ -176,9 +237,14 @@ git diff "$TARGET...HEAD" | grep -nE '(sk-[A-Za-z0-9]{12,}|API_KEY *= *["'\'']?[
   ls .github/workflows/*.y*ml 2>/dev/null
   ```
 
-  List the ones relevant to the touched areas, plus any tests the branch added. A command is reported
-  as passing only if it was run and its output read. If nothing was run, say which commands a reviewer
+  This is the pre-flight's output written down, not a fresh derivation: report each lane by name with its
+  real result, plus any tests the branch added. A command is reported as passing only if it was run in this
+  session and its output read; a lane that was skipped is named as skipped, with the command a reviewer
   should run.
+
+  **State which lanes actually ran, never "CI will confirm".** Whether a push runs anything depends on the
+  workflow triggers read in the pre-flight — where they are `pull_request` only, nothing has run until this
+  PR exists but what you ran yourself.
 
 ## Step 3 — Assemble the body
 
@@ -202,9 +268,13 @@ BODY=$(mktemp); printf '%s\n' "$ASSEMBLED_BODY" > "$BODY"
 Tick a box **only** when the evidence supports it; otherwise leave it unchecked. An honest blank beats a
 fabricated tick. Common ones:
 
-- **Build/test gate green** — whatever this repository defines as its gate, discovered above. Tick only
-  from a run whose output you read.
-- **No secret committed** — `git diff "$TARGET...HEAD" | grep -nEi '(api[_-]?key|secret|token|password|BEGIN [A-Z ]*PRIVATE KEY)'`
+- **Build/test gate green** — whatever this repository defines as its gate, discovered above. Tick only from
+  a run whose output you read, **and only if that run happened after the last commit this skill made**: a
+  gate run from before the commit does not describe the tree CI checks out. The distinction is not pedantic
+  for any lane that reads committed state — that one is green before the commit and red after it.
+- **No secret committed** — from the pre-flight scan, the check CI actually runs. The diff-scoped grep in
+  Step 1 is a supplement, not a substitute: ticking this box on the grep alone, with no scanner installed, is
+  a claim the evidence does not support — leave it blank and say why.
 - **Commits follow the repository's message convention, and the branch pair is the documented one** — check
   the subjects against `git log --oneline -20` on the target, and confirm `$CURRENT` → `$TARGET_BRANCH`
   matches the flow read in §Branch policy. Where the template asks for a trailer:
@@ -249,6 +319,14 @@ Print the resulting PR URL.
 
 ## Hard rules (red flags — stop if you catch yourself doing these)
 
+- Opening the PR to **find out** whether CI passes, when the pre-flight would have said. → Run the
+  pre-flight; a red lane is a stop, not a note in the body.
+- Reporting a lane that reads committed state as green from a **pre-commit** run. → It cannot see
+  uncommitted work; run the pending-aware form before, and the plain one after.
+- Reporting the Step 1 grep as "the secret scan" when no scanner ran. → Name it approximate, leave the box
+  blank.
+- Opening a PR because the work looks finished, without being asked. → It is opened on the operator's
+  invocation and no other occasion.
 - Writing an `A##`/`D##`/`#issue` ref that is **not** in the commits or diff. → Use `n/a`.
 - Ticking a human-sign-off box without the human. → Leave blank, note it pending.
 - Claiming a verification command passed that you did not run. → Say what a reviewer should run instead.

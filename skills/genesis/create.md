@@ -67,7 +67,10 @@ Stack-agnostic substrate, laid before any stack talk.
 - **Docs skeleton** (`templates/docs/*`), **`.gitignore`** (from `templates/gitignore.template` — keep its
   universal, secrets and `.scratch/*` sections, append the stack's once known), the **`.env` family** (from
   `templates/env/`; only `.env.example` is committed; generate secrets with the `# generate:` commands),
-  **`.scratch/`**, and **`.github/pull_request_template.md`**.
+  **`.scratch/`**, and **`.github/`** — the pull request template, `workflows/ci.yml` and `dependabot.yml`,
+  each with its placeholders filled: the default branch, the runtime version, the install command, the gate
+  command, the package ecosystem, and the current `gitleaks` release read from its releases page rather than
+  assumed. Swap the Node setup/install pair for the stack's own.
 - **Root `README.md`** from `templates/README.project.md`. READMEs are a gate — see
   [`reference.md`](reference.md) §READMEs.
 - **`.claude/settings.json`** — secret denials for the Read tool, and an `ask` gate on push, merge and deploy.
@@ -83,6 +86,12 @@ Stack-agnostic substrate, laid before any stack talk.
   CONFIRMED/VERIFIED stamp) hiding inside a section that still holds open work. It needs `docs/TODO-done.md`
   to exist — without an archive file it silently does nothing.
   Fails open, blocks at most once per distinct violation set, disarmed with `touch .claude/todo-archive.off`.
+- **The docs freshness check.** Copy `templates/check-docs.mjs` → `scripts/check-docs.mjs`, and adjust the two
+  lists at its top to this repository — which trees are not documentation, and which files are historical
+  records whose drift is normal. It fails a dead relative link, and a doc whose tracked files were committed
+  after the `**Verified <date>** against \`path\`` line the doc carries; a doc with no such line is reported,
+  never failed. It is a lane of the project's gate and of `.github/workflows/ci.yml`, and the workflow's
+  checkout needs `fetch-depth: 0` for it to read history at all — `docs/TESTING.md` §9.
 - **No network exposure in dev or test.** Never auto-start servers; never bind a public interface. Where a
   server is genuinely needed — an asked-for preview, an e2e test — bind `127.0.0.1` only, never `0.0.0.0`, and
   tear it down. Opening a public port happens at deploy, behind a human gate. See

@@ -19,8 +19,10 @@ an owner other than you.
    edits. Never revert, clean, or "tidy" them. If a file you are editing changes under you, re-read
    it and merge your change on top — do not overwrite.
 3. **Stay inside the requested scope.** Touch only the files the request names or strictly requires.
-   No drive-by refactors, no reformatting, no fixing adjacent problems — name them in the report
-   instead. An unrelated file you edit is a file you are colliding with someone on.
+   No drive-by refactors and no reformatting. A problem in a file you are *not* already editing is
+   named in the report and never fixed here — it probably belongs to another session's in-flight
+   work, and an unrelated file you edit is a file you are colliding with someone on. A defect in a
+   file you are already changing stays yours to fix, in this mode as in every other.
 4. **Do not kill processes.** No `pkill`, `killall`, port sweeps, or container teardowns — the dev
    server, test run, or database you would kill probably belongs to the other session. Kill only a
    PID you spawned this turn and captured yourself. Leftovers you did not spawn get reported, not
