@@ -13,8 +13,9 @@ something other than the repository it is in.
 | [`env/`](env/) | `.env.example` (committed), `.env.development`, `.env.production`. Every value is empty |
 | [`settings.template.jsonc`](settings.template.jsonc) | `.claude/settings.json` — secret denials and the push/merge/deploy gate |
 | [`todo-archive-reminder.mjs`](todo-archive-reminder.mjs) | `.claude/hooks/todo-archive-reminder.mjs`, the one hook genesis installs |
+| [`check-docs.mjs`](check-docs.mjs) | `scripts/check-docs.mjs` — dead relative links, and docs whose subject moved since they were verified |
 | [`scratch-README.md`](scratch-README.md) | `.scratch/README.md` |
-| [`.github/`](.github/) | the project's PR template |
+| [`.github/`](.github/) | the project's PR template, its CI workflow, and the dependency-update config |
 
 **One folder here holds no project files.** [`user-layer/`](user-layer/) is the `~/.claude` layer — the
 priming file, the hook set that runs alongside it, and the settings block that wires them. The system-check

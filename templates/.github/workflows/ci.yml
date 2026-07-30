@@ -1,0 +1,70 @@
+name: CI
+
+# The project's own gate, run by the host on code nobody has to remember to check.
+#
+# TRIGGERS — a pull request, and a push to the default branch. Deliberately not a push to the
+# working branch: where work happens on one branch and merges to another through a PR, that branch
+# is already covered by its open PR, and adding the push trigger runs the whole suite twice for
+# every commit. A repository that merges directly to its default branch keeps only the push line.
+on:
+  pull_request:
+  push:
+    branches: ["{{DEFAULT_BRANCH}}"]
+
+# Read-only by default. A workflow that needs to write (a release, a comment, a pushed artifact)
+# adds exactly the scope it needs, on the job that needs it.
+permissions:
+  contents: read
+
+# A newer commit on the same branch supersedes the run in progress instead of paying for both.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The job NAME is what a branch protection rule requires by name. Renaming it silently detaches
+  # the required check, and the rule then passes on a workflow that no longer runs.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth: 0 is load-bearing wherever a check reads git history — the docs freshness check
+      # below asks when each tracked file last changed. Under the default shallow clone the only
+      # commit present is the run's own, dated today, so every file reports as changed today.
+      # Drop it only if nothing in this workflow reads history.
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # Secret scan on the checked-out tree, before anything installs. A key committed by accident
+      # is caught here rather than living in history — where removing it means rotating the
+      # credential and rewriting published commits, not deleting a line.
+      # Read the current release before filling the version; an unpinned download is a third party
+      # deciding what runs in this repository.
+      - name: Secret scan
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v{{GITLEAKS_VERSION}}/gitleaks_{{GITLEAKS_VERSION}}_linux_x64.tar.gz" -o /tmp/gitleaks.tgz
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+          /tmp/gitleaks dir . --no-banner --redact --exit-code 1
+
+      # Swap this pair for the stack: setup-python + pip, setup-go + go mod download, and so on.
+      # Pin the runtime version rather than floating it — a runtime that moves under the project
+      # turns an unrelated commit into the thing that broke the build.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "{{RUNTIME_VERSION}}"
+
+      - name: Install dependencies
+        run: "{{INSTALL_CMD}}"
+
+      # Documentation rots silently: a doc keeps rendering fine long after the code it describes
+      # moved. This turns two of those failures into build failures — a dead relative link, and a
+      # doc whose tracked files were committed after its own `**Verified <date>** against …` line.
+      # Docs carrying no claim are reported, never failed.
+      - name: Docs freshness + links
+        run: node scripts/check-docs.mjs
+
+      # The project's gate — the same commands CLAUDE.md names as the definition of done, so a
+      # green run here means the same thing as a green run locally. Split into separate steps where
+      # naming the failing stage in the run log is worth the extra lines.
+      - name: Gate
+        run: "{{TEST_CMD}}"

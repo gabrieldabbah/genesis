@@ -111,6 +111,7 @@ lint  →  typecheck  →  unit  →  property  →  contract/schema  →  integ
 - Where the stack supports it, also wire a pre-commit / pre-push hook (e.g. husky `pre-commit`, or a
   `Makefile`/`justfile` `check` target) running Tier A, and CI running Tier B on every PR — so the gate
   is enforced by tooling, not memory. The hook is a convenience; `test-gate` before a commit is the rule.
+  The host's half of this — the workflow, its triggers, and the two lanes that only exist there — is §9.
 - Coverage is a smell-detector, not a target: chase *uncovered boundaries and the seam*, not a
   percentage. A bug means a missing test — add the regression test (red first) before the fix.
 
@@ -155,3 +156,77 @@ A feature is testable-done only when:
 > Adapt commands to the stack; keep the predicates. Fill the placeholders at bootstrap: `{{TEST_CMD}}`,
 > `{{TEST_WATCH_CMD}}`, `{{PROPERTY_LIB}}`, `{{DB_IMAGE}}`, `{{MIGRATE_CMD}}`, `{{SEED_CMD}}`. Then
 > `grep -rn "{{" .` must be empty.
+
+## 9. The CI half — the same gate, run by the host
+
+The workflow in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs **this project's gate**, not a
+second, weaker one. If a lane is worth failing a pull request over it belongs in `{{TEST_CMD}}` too, so a
+green local run and a green pull request mean the same thing. The setup steps — enabling the workflow,
+protecting the default branch, making the check required — are the `repo-hardening` skill's four steps; this
+section is the part that belongs to testing.
+
+**Triggers: a pull request, and a push to the default branch.** Where work happens on one branch and reaches
+the default branch through a pull request, that branch is already covered by the `pull_request` event —
+adding a push trigger for it runs the whole suite twice for every commit, and the second run tells you
+nothing the first did not. A repository that commits straight to its default branch keeps only the push
+line. Two more properties belong on every workflow: `permissions: contents: read`, so a job that only reads
+cannot write, and a `concurrency` group with `cancel-in-progress`, so a new commit supersedes the run in
+progress rather than paying for both.
+
+**The job's name is an interface.** A required status check names the job, so renaming it detaches the
+requirement — and the branch rule then passes on a workflow that no longer runs. A rename is a change to the
+protection rule as well.
+
+**Give the checkout full history wherever a check reads it.** `actions/checkout` clones one commit by
+default. Anything that asks git *when* something changed — a docs freshness check, a changed-files filter, a
+version derived from tags — reads a repository whose entire history is a single commit dated today, and
+answers confidently and wrongly. `fetch-depth: 0` is the fix, and the freshness check shipped here refuses to
+answer rather than emitting a wall of false drift when it finds a shallow clone.
+
+### Two lanes that exist only in CI, and how to run them locally
+
+Both have the same failure mode: they pass locally and fail on the pull request, having read something
+different from what you read.
+
+- **The secret scan reads the tracked tree, not the working directory.** CI checks out tracked files only,
+  before any install. A scanner pointed at the local directory reads `node_modules/`, build output, backups
+  and the real `.env` — none of which CI has — so it reports findings that mean nothing and trains you to
+  ignore the one that would matter. Reproduce CI's tree exactly, then scan that:
+
+  ```bash
+  TREE=$(mktemp -d) && git archive HEAD | tar -x -C "$TREE" &&
+    gitleaks dir "$TREE" --no-banner --redact --exit-code 1; echo "exit=$?"; rm -rf "$TREE"
+  ```
+
+  A finding is read before it is repeated: the file and line go in the report, never the value. A flagged
+  tracked file is a stop — the credential is rotated and removed before anything is pushed, because a commit
+  reaches every fork and cache the moment it lands.
+
+- **A check that reads committed state cannot be answered before the commit.** Documentation freshness is the
+  standing example: a doc carries `**Verified <date>** against \`path\` · \`path\``, and the check fails when
+  a file on that line was committed *after* the date. Uncommitted work has no commit date, so the local run
+  reports nothing and the identical command goes red minutes later with nothing having changed in between.
+  `node scripts/check-docs.mjs --pending` asks the question with the date the pending work will carry, and
+  names each doc the commit is about to expire. Run it before committing; run the plain form after.
+
+  Fixing a flagged doc means re-reading it against the files on its line and then bumping the date. Bumping
+  the date alone disarms the check for those files permanently, which is worse than the one red lane it hides.
+
+### Integration and database tests in CI
+
+Tier-B integration tests (§4) run in CI the same way they run locally: a throwaway service started **inside
+the runner**, migrated and seeded per run, torn down after. Never a shared or staging instance — a suite that
+truncates a table is indistinguishable from an incident when it points at something real, and a runner that
+can reach production is a credential nobody meant to grant.
+
+Keep them in a **separate workflow** when they are slow enough to notice: the fast Docker-free lanes stay a
+minute, the database suite runs on the same triggers without holding up the rest, and either can be re-run
+alone. Both still gate the merge.
+
+### What CI does not replace
+
+- **The local gate before a commit.** CI reports after the fact; `test-gate` is what stops the commit.
+- **A push is not a CI run.** What runs depends on the trigger lines above — read them before calling
+  anything validated. If nothing ran, the local gate is the only gate.
+- **A green pull request is not a deployment.** What the host deploys is the default branch after the merge
+  (`DEPLOYMENT.md`), and the post-deploy checks there are a separate obligation.

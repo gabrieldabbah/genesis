@@ -152,6 +152,39 @@ print("  ok    every shipped skill is in the roster" if not bad else "")
 sys.exit(1 if bad else 0)
 PY
 
+# Every shipped YAML template parses with its placeholders still in it. `{` opens a flow mapping in YAML,
+# so an unquoted `run: {{TEST_CMD}}` is a syntax error and the workflow is invalid until someone fills it —
+# which is exactly when nobody is looking at it. Full parse where PyYAML is installed; where it is not, the
+# narrower check for the defect itself, which needs no dependency.
+python3 - <<'PY' || fails=$((fails + 1))
+import os, re, sys
+# os.walk, not glob: `glob('templates/**/*.yml')` silently skips every dot-directory, so the workflow
+# templates under `.github/` are exactly the files it would not have looked at.
+files = [os.path.join(d, n) for d, _, ns in os.walk('templates')
+         for n in ns if n.endswith(('.yml', '.yaml'))]
+bad = []
+try:
+    import yaml
+    loader = lambda t: yaml.safe_load(t)
+except ImportError:
+    yaml = None
+for f in files:
+    text = open(f, encoding='utf8').read()
+    for i, line in enumerate(text.splitlines(), 1):
+        if re.search(r':\s*\{\{', line):
+            bad.append(f"{f}:{i}: unquoted {{{{placeholder}}}} — YAML reads it as a flow mapping")
+    if yaml:
+        try:
+            loader(text)
+        except Exception as e:
+            bad.append(f"{f}: does not parse — {str(e).splitlines()[0]}")
+for b in bad:
+    print(f"  FAIL  {b}")
+label = "every YAML template parses with placeholders" + ("" if yaml else " (structural check only — no PyYAML)")
+print(f"  ok    {label}" if not bad else "")
+sys.exit(1 if bad else 0)
+PY
+
 # A registry `reference:` must name a file that exists.
 python3 - <<'PY' || fails=$((fails + 1))
 import glob, os, re, sys
