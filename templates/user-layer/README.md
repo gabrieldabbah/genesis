@@ -106,7 +106,7 @@ something about a particular setup, that is recorded here rather than by editing
 - **§The seam** names the `axiomatic-induction` constitution as the standing law of non-trivial work.
   Genesis ships it as a skill ([`axiomatic-induction`](../../skills/axiomatic-induction/SKILL.md)), so the
   reference resolves once the plugin is installed. Without it, the section's own rules — origins on every
-  claim, severity only from read/ran, degrade rather than promote — still stand on their own.
+  claim, severity only from read/ran, a stated postcondition before every write — still stand on their own.
 - **§Commits, pushes, and pull requests** names the `git-commit` and `generate-pr` skills. Genesis ships both
   ([`git-commit`](../../skills/git-commit/SKILL.md),
   [`generate-pr`](../../skills/generate-pr/SKILL.md)), so this section holds as written once the plugin is
