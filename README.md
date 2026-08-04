@@ -1,5 +1,6 @@
 <div align="center">
 
+* ALTHOUGH THIS WORKS BETTER THAN 5 MODELS BY THEMSELVES. IT IS NOT GOOD ENOUGH AND I AM CREATING AN ENTIRE NEW SYSTEM AS OF THIS MOMENT *
 # Genesis
 
 **Ultimate Opus 5 builder. Genesis creates and transforms any setup into the ultimate setup for generation 5 models.**
